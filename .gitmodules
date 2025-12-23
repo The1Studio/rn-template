@@ -1,6 +1,6 @@
 [submodule "packages/core"]
 	path = packages/core
-	url = ./packages/core
+	url = git@github.com:The1Studio/rn-core.git
 [submodule "packages/ui"]
 	path = packages/ui
-	url = ./packages/ui
+	url = git@github.com:The1Studio/rn-ui.git
