@@ -1,0 +1,14 @@
+{
+  "name": "rn-template",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "npm run --workspace=mobile",
+    "core": "npm run --workspace=@repo/core",
+    "ui": "npm run --workspace=@repo/ui"
+  }
+}
