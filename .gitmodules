@@ -1,0 +1,6 @@
+[submodule "packages/core"]
+	path = packages/core
+	url = ./packages/core
+[submodule "packages/ui"]
+	path = packages/ui
+	url = ./packages/ui
