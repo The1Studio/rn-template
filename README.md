@@ -23,6 +23,29 @@ rn-template/
 └── README.md
 ```
 
+## Quick Start
+
+```bash
+# Clone with submodules
+git clone --recurse-submodules <repository-url>
+cd rn-template
+
+# Run setup script (handles submodules + npm install)
+./scripts/setup.sh
+
+# Run the app
+npm run mobile start
+```
+
+Or manually:
+
+```bash
+git clone --recurse-submodules <repository-url>
+cd rn-template
+npm install
+npm run mobile start
+```
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
@@ -41,11 +64,17 @@ npm install -g eas-cli
 
 ## Installation
 
-### 1. Clone the repository
+### 1. Clone the repository with submodules
 
 ```bash
+# Option A: Clone with submodules (recommended)
+git clone --recurse-submodules <repository-url>
+cd rn-template
+
+# Option B: If already cloned without submodules
 git clone <repository-url>
 cd rn-template
+git submodule update --init --recursive
 ```
 
 ### 2. Install dependencies
@@ -61,6 +90,32 @@ This will install dependencies for:
 - `apps/mobile`
 - `packages/core`
 - `packages/ui`
+
+### Pulling Updates
+
+When pulling updates that include submodule changes:
+
+```bash
+# Pull with submodule updates
+git pull --recurse-submodules
+
+# Or pull then update submodules separately
+git pull
+git submodule update --init --recursive
+npm install
+```
+
+### Submodule Troubleshooting
+
+If submodules fail to initialize:
+
+```bash
+# Reset and re-initialize submodules
+git submodule deinit -f packages/core packages/ui
+rm -rf .git/modules/packages
+git submodule update --init --remote
+npm install
+```
 
 ## Running the App
 
