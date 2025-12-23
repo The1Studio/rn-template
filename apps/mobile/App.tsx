@@ -1,11 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, View } from "react-native";
 
 // Import from @repo/core
-import { useCounter, useToggle, formatCurrency, colors } from '@repo/core';
+import { useCounter, useToggle, formatCurrency, colors } from "@repo/core";
 
 // Import from @repo/ui
-import { Button, Card, Text, Spacer } from '@repo/ui';
+import { Button, Card, Text, Spacer } from "@repo/ui";
 
 export default function App() {
   const { count, increment, decrement, reset } = useCounter(0);
@@ -17,12 +17,12 @@ export default function App() {
     <View
       style={[
         styles.container,
-        { backgroundColor: isDarkMode ? '#1e293b' : colors.background },
+        { backgroundColor: isDarkMode ? "#1e293b" : colors.background },
       ]}
     >
-      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-      <Text variant="h1" color={isDarkMode ? '#fff' : undefined}>
+      <Text variant="h1" color={isDarkMode ? "#fff" : undefined}>
         Monorepo Demo
       </Text>
 
@@ -34,9 +34,7 @@ export default function App() {
 
         <Spacer size={16} />
 
-        <Text variant="h1" style={styles.counter}>
-          {count}
-        </Text>
+        <Text style={styles.counter}>{count}</Text>
 
         <Spacer size={16} />
 
@@ -61,7 +59,7 @@ export default function App() {
       <Spacer size={16} />
 
       <Button
-        title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+        title={isDarkMode ? "Light Mode" : "Dark Mode"}
         onPress={toggleDarkMode}
         variant="outline"
       />
@@ -72,19 +70,19 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
   card: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   counter: {
-    fontSize: 48,
+    fontSize: 30,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
