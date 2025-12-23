@@ -4,6 +4,3 @@
 [submodule "packages/ui"]
 	path = packages/ui
 	url = ./packages/ui
-[submodule "apps/mobile"]
-	path = apps/mobile
-	url = ./apps/mobile
