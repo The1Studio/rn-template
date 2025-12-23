@@ -3,9 +3,15 @@ import { StyleSheet, View } from "react-native";
 
 // Import from @repo/core
 import { useCounter, useToggle, formatCurrency, colors } from "@repo/core";
-
-// Import from @repo/ui
-import { Button, Card, Text, Spacer } from "@repo/ui";
+import {
+  Button,
+  Card,
+  heightPercentageToDP,
+  Spacer,
+  Spacing,
+  Text,
+  Typography,
+} from "@repo/ui";
 
 export default function App() {
   const { count, increment, decrement, reset } = useCounter(0);
@@ -26,37 +32,37 @@ export default function App() {
         Monorepo Demo
       </Text>
 
-      <Spacer size={24} />
+      <Spacer size={Spacing.lg} />
 
       <Card style={styles.card}>
         <Text variant="h2">Counter Example</Text>
         <Text variant="caption">Using useCounter hook from @repo/core</Text>
 
-        <Spacer size={16} />
+        <Spacer size={Spacing.md} />
 
-        <Text style={styles.counter}>{count}</Text>
+        <Text style={Typography.h1}>{count}</Text>
 
-        <Spacer size={16} />
+        {/* <Spacer size={Spacing.md} /> */}
 
         <View style={styles.row}>
           <Button title="-" onPress={decrement} variant="outline" />
-          <Spacer size={12} horizontal />
+          <Spacer size={Spacing.sm} horizontal />
           <Button title="Reset" onPress={reset} variant="secondary" />
-          <Spacer size={12} horizontal />
+          <Spacer size={Spacing.sm} horizontal />
           <Button title="+" onPress={increment} />
         </View>
       </Card>
 
-      <Spacer size={16} />
+      <Spacer size={Spacing.md} />
 
       <Card style={styles.card}>
         <Text variant="h2">Format Utils</Text>
         <Text variant="caption">Using formatCurrency from @repo/core</Text>
-        <Spacer size={8} />
+        <Spacer size={Spacing.sm} />
         <Text variant="body">Price: {price}</Text>
       </Card>
 
-      <Spacer size={16} />
+      <Spacer size={Spacing.md} />
 
       <Button
         title={isDarkMode ? "Light Mode" : "Dark Mode"}
@@ -72,15 +78,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    padding: Spacing.lg,
   },
   card: {
     width: "100%",
     alignItems: "center",
   },
-  counter: {
-    fontSize: 30,
-  },
+
   row: {
     flexDirection: "row",
     alignItems: "center",
