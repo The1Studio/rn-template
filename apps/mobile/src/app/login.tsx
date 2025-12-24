@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import {
   StyleSheet,
   View,
-  TextInput,
   Pressable,
   Text,
   ActivityIndicator,
@@ -13,37 +11,58 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect } from 'expo-router';
 import { useAuthStore } from '@/stores';
 import { useLogin } from '@/hooks/queries';
+import { FormTextInput, FormPasswordInput } from '@repo/ui';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+// Zod schema for login form validation
+const loginSchema = z.object({
+  email: z
+    .email({ message: 'Please enter a valid email' })
+    .min(1, 'Email is required'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .min(6, 'Password must be at least 6 characters'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('demo@example.com');
-  const [password, setPassword] = useState('password123');
-
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isHydrated = useAuthStore((state) => state.isHydrated);
-
-  const { mutate: loginRequest, error, isPending } = useLogin();
   const login = useAuthStore((state) => state.login);
+
+  const { mutate: _loginRequest, error: apiError, isPending } = useLogin();
+
+  const { control, handleSubmit } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: 'demo@example.com',
+      password: 'password123',
+    },
+  });
+
   // Redirect to tabs if already authenticated
   if (isHydrated && isAuthenticated) {
     return <Redirect href="/(tabs)" />;
   }
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      return;
-    }
-    // Mock successful login
+  const onSubmit = (data: LoginFormData) => {
+    // Mock successful login (for demo)
     login(
       {
         id: 'user-123',
-        email: email,
-        name: email.split('@')[0],
+        email: data.email,
+        name: data.email.split('@')[0],
         avatar: 'https://i.pravatar.cc/150',
       },
       'mock-jwt-token-xyz'
     );
 
-    // loginRequest({ email, password });
+    // Uncomment to use real API:
+    // loginRequest(data);
   };
 
   return (
@@ -59,39 +78,32 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#999"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+          <FormTextInput
+            control={control}
+            name="email"
+            label="Email"
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+          <FormPasswordInput
+            control={control}
+            name="password"
+            label="Password"
+            placeholder="Enter your password"
+          />
 
-          {error ? (
-            <Text style={styles.error}>{error.message || 'Login failed'}</Text>
+          {apiError ? (
+            <Text style={styles.error}>
+              {apiError.message || 'Login failed'}
+            </Text>
           ) : null}
 
           <Pressable
             style={[styles.button, isPending && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={handleSubmit(onSubmit)}
             disabled={isPending}
           >
             {isPending ? (
@@ -147,22 +159,6 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
-  },
-  inputContainer: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  input: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
   },
   error: {
     color: '#dc3545',
