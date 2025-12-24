@@ -12,35 +12,26 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect } from 'expo-router';
 import { useAuthStore } from '@/stores';
+import { useLogin } from '@/hooks/queries';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('demo@example.com');
   const [password, setPassword] = useState('password123');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isHydrated = useAuthStore((state) => state.isHydrated);
-  const login = useAuthStore((state) => state.login);
 
+  const { mutate: loginRequest, error, isPending } = useLogin();
+  const login = useAuthStore((state) => state.login);
   // Redirect to tabs if already authenticated
   if (isHydrated && isAuthenticated) {
     return <Redirect href="/(tabs)" />;
   }
 
   const handleLogin = async () => {
-    setError('');
-
     if (!email || !password) {
-      setError('Please fill in all fields');
       return;
     }
-
-    setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
     // Mock successful login
     login(
       {
@@ -52,8 +43,7 @@ export default function LoginScreen() {
       'mock-jwt-token-xyz'
     );
 
-    setIsLoading(false);
-    // Redirect will happen automatically via the isAuthenticated check above
+    // loginRequest({ email, password });
   };
 
   return (
@@ -95,14 +85,16 @@ export default function LoginScreen() {
             />
           </View>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? (
+            <Text style={styles.error}>{error.message || 'Login failed'}</Text>
+          ) : null}
 
           <Pressable
-            style={[styles.button, isLoading && styles.buttonDisabled]}
+            style={[styles.button, isPending && styles.buttonDisabled]}
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading ? (
+            {isPending ? (
               <ActivityIndicator color="white" />
             ) : (
               <Text style={styles.buttonText}>Sign In</Text>

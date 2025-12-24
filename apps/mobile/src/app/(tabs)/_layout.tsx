@@ -74,6 +74,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon name="stores" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="api-test"
+        options={{
+          title: 'API',
+          tabBarIcon: ({ color }) => <TabIcon name="api" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
@@ -84,6 +91,7 @@ function TabIcon({ name, color: _color }: { name: string; color: string }) {
     home: '🏠',
     storage: '💾',
     stores: '📦',
+    api: '🌐',
   };
 
   return <Text style={{ fontSize: 24 }}>{icons[name] || '📱'}</Text>;
