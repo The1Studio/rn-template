@@ -1,13 +1,13 @@
-import { StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Card, Spacer, Spacing, Text, Typography } from "../../lib";
-import { colors, useCounter } from "../../core";
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Card, Spacer, Spacing, Text, Typography } from '../../lib';
+import { colors, useCounter } from '../../core';
 
 export default function HomeScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.content}>
         <Text variant="h1">Home</Text>
         <Text variant="caption">Welcome to the app</Text>
@@ -45,14 +45,14 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: Spacing.lg,
-    alignItems: "center",
+    alignItems: 'center',
   },
   card: {
-    width: "100%",
-    alignItems: "center",
+    width: '100%',
+    alignItems: 'center',
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

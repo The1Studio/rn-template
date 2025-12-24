@@ -20,7 +20,11 @@ config.resolver.nodeModulesPaths = [
 // Block React from being resolved from root node_modules
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Force react and react-native to resolve from mobile's node_modules
-  if (moduleName === 'react' || moduleName === 'react-native' || moduleName.startsWith('react-native/')) {
+  if (
+    moduleName === 'react' ||
+    moduleName === 'react-native' ||
+    moduleName.startsWith('react-native/')
+  ) {
     return context.resolveRequest(
       {
         ...context,

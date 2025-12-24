@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,16 +8,16 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Redirect } from "expo-router";
-import { useAuthStore } from "@/stores";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Redirect } from 'expo-router';
+import { useAuthStore } from '@/stores';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("demo@example.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState('demo@example.com');
+  const [password, setPassword] = useState('password123');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isHydrated = useAuthStore((state) => state.isHydrated);
@@ -29,10 +29,10 @@ export default function LoginScreen() {
   }
 
   const handleLogin = async () => {
-    setError("");
+    setError('');
 
     if (!email || !password) {
-      setError("Please fill in all fields");
+      setError('Please fill in all fields');
       return;
     }
 
@@ -44,12 +44,12 @@ export default function LoginScreen() {
     // Mock successful login
     login(
       {
-        id: "user-123",
+        id: 'user-123',
         email: email,
-        name: email.split("@")[0],
-        avatar: "https://i.pravatar.cc/150",
+        name: email.split('@')[0],
+        avatar: 'https://i.pravatar.cc/150',
       },
-      "mock-jwt-token-xyz"
+      'mock-jwt-token-xyz'
     );
 
     setIsLoading(false);
@@ -59,7 +59,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
         <View style={styles.header}>
@@ -109,14 +109,12 @@ export default function LoginScreen() {
             )}
           </Pressable>
 
-          <Text style={styles.hint}>
-            Demo: Use any email/password to login
-          </Text>
+          <Text style={styles.hint}>Demo: Use any email/password to login</Text>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            This is a demo login screen.{"\n"}
+            This is a demo login screen.{'\n'}
             Auth state is persisted with expo-secure-store.
           </Text>
         </View>
@@ -128,32 +126,32 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
   },
   content: {
     flex: 1,
     padding: 24,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 40,
   },
   logo: {
     fontSize: 28,
-    fontWeight: "800",
-    color: "#007AFF",
+    fontWeight: '800',
+    color: '#007AFF',
     marginBottom: 16,
   },
   title: {
     fontSize: 24,
-    fontWeight: "700",
-    color: "#1a1a1a",
+    fontWeight: '700',
+    color: '#1a1a1a',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
+    color: '#666',
   },
   form: {
     gap: 16,
@@ -163,50 +161,50 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: '600',
+    color: '#333',
   },
   input: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: '#e0e0e0',
   },
   error: {
-    color: "#dc3545",
+    color: '#dc3545',
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: '#007AFF',
     borderRadius: 12,
     padding: 16,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 8,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   hint: {
-    textAlign: "center",
-    color: "#999",
+    textAlign: 'center',
+    color: '#999',
     fontSize: 12,
     marginTop: 8,
   },
   footer: {
     marginTop: 40,
-    alignItems: "center",
+    alignItems: 'center',
   },
   footerText: {
-    textAlign: "center",
-    color: "#999",
+    textAlign: 'center',
+    color: '#999',
     fontSize: 12,
     lineHeight: 18,
   },

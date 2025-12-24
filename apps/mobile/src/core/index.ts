@@ -1,2 +1,1 @@
-// eslint-disable-next-line no-restricted-imports
-export * from "@repo/core";
+export * from '@repo/core';

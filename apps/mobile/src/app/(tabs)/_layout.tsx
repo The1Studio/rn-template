@@ -1,13 +1,13 @@
-import { Tabs, Redirect } from "expo-router";
+import { Tabs, Redirect } from 'expo-router';
 import {
   Platform,
   Text,
   View,
   ActivityIndicator,
   StyleSheet,
-} from "react-native";
-import { colors } from "../../core";
-import { useAuthStore } from "@/stores";
+} from 'react-native';
+import { colors } from '../../core';
+import { useAuthStore } from '@/stores';
 
 export default function TabLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -36,41 +36,41 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          paddingBottom: Platform.OS === "ios" ? 20 : 10,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
           paddingTop: 10,
-          height: Platform.OS === "ios" ? 85 : 65,
+          height: Platform.OS === 'ios' ? 85 : 65,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
+          fontWeight: '600',
         },
         headerStyle: {
           backgroundColor: colors.surface,
         },
         headerTintColor: colors.text,
         headerTitleStyle: {
-          fontWeight: "600",
+          fontWeight: '600',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: 'Home',
           tabBarIcon: ({ color }) => <TabIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Storage",
+          title: 'Storage',
           tabBarIcon: ({ color }) => <TabIcon name="storage" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Stores",
+          title: 'Stores',
           tabBarIcon: ({ color }) => <TabIcon name="stores" color={color} />,
         }}
       />
@@ -79,26 +79,26 @@ export default function TabLayout() {
 }
 
 // Simple text-based icon component (replace with actual icons later)
-function TabIcon({ name, color }: { name: string; color: string }) {
+function TabIcon({ name, color: _color }: { name: string; color: string }) {
   const icons: Record<string, string> = {
-    home: "🏠",
-    storage: "💾",
-    stores: "📦",
+    home: '🏠',
+    storage: '💾',
+    stores: '📦',
   };
 
-  return <Text style={{ fontSize: 24 }}>{icons[name] || "📱"}</Text>;
+  return <Text style={{ fontSize: 24 }}>{icons[name] || '📱'}</Text>;
 }
 
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#666",
+    color: '#666',
   },
 });

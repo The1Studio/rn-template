@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,14 +8,14 @@ import {
   Text,
   Alert,
   Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { secureStorage } from "@repo/core";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { secureStorage } from '@repo/core';
 
-const STORAGE_KEY = "demo-notes";
+const STORAGE_KEY = 'demo-notes';
 
 export default function ExploreScreen() {
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState('');
   const [savedNotes, setSavedNotes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,15 +33,15 @@ export default function ExploreScreen() {
 
   const saveNote = async () => {
     if (!note.trim()) {
-      Alert.alert("Error", "Please enter a note");
+      Alert.alert('Error', 'Please enter a note');
       return;
     }
 
     const updatedNotes = [...savedNotes, note.trim()];
     await secureStorage.setObject(STORAGE_KEY, updatedNotes);
     setSavedNotes(updatedNotes);
-    setNote("");
-    Alert.alert("Success", "Note saved to SecureStore!");
+    setNote('');
+    Alert.alert('Success', 'Note saved to SecureStore!');
   };
 
   const deleteNote = async (index: number) => {
@@ -51,11 +51,11 @@ export default function ExploreScreen() {
   };
 
   const clearAllNotes = async () => {
-    Alert.alert("Clear All", "Are you sure you want to delete all notes?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert('Clear All', 'Are you sure you want to delete all notes?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: "Delete All",
-        style: "destructive",
+        text: 'Delete All',
+        style: 'destructive',
         onPress: async () => {
           await secureStorage.remove(STORAGE_KEY);
           setSavedNotes([]);
@@ -65,7 +65,7 @@ export default function ExploreScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Header */}
         <Text style={styles.title}>Storage Demo</Text>
@@ -106,7 +106,7 @@ export default function ExploreScreen() {
             <Text style={styles.emptyText}>Loading...</Text>
           ) : savedNotes.length === 0 ? (
             <Text style={styles.emptyText}>
-              No notes saved yet.{"\n"}Notes will persist after app restart!
+              No notes saved yet.{'\n'}Notes will persist after app restart!
             </Text>
           ) : (
             <View style={styles.notesList}>
@@ -134,7 +134,9 @@ export default function ExploreScreen() {
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Encryption:</Text>
-            <Text style={styles.infoValue}>iOS Keychain / Android Keystore</Text>
+            <Text style={styles.infoValue}>
+              iOS Keychain / Android Keystore
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Size Limit:</Text>
@@ -172,7 +174,7 @@ await secureStorage.remove('key');`}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
   },
   content: {
     padding: 16,
@@ -180,64 +182,64 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-    color: "#1a1a1a",
+    fontWeight: '700',
+    color: '#1a1a1a',
   },
   subtitle: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
     marginBottom: 8,
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#1a1a1a",
+    fontWeight: '600',
+    color: '#1a1a1a',
     marginBottom: 12,
   },
   input: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     minHeight: 80,
-    textAlignVertical: "top",
+    textAlignVertical: 'top',
     marginBottom: 12,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: '#007AFF',
     borderRadius: 8,
     padding: 14,
-    alignItems: "center",
+    alignItems: 'center',
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   clearButton: {
-    color: "#dc3545",
+    color: '#dc3545',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   emptyText: {
-    textAlign: "center",
-    color: "#999",
+    textAlign: 'center',
+    color: '#999',
     fontSize: 14,
     lineHeight: 20,
     paddingVertical: 20,
@@ -246,59 +248,59 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   noteItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
     borderRadius: 8,
     padding: 12,
   },
   noteText: {
     flex: 1,
     fontSize: 14,
-    color: "#333",
+    color: '#333',
   },
   deleteButton: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#dc3545",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#dc3545',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginLeft: 8,
   },
   deleteButtonText: {
-    color: "white",
+    color: 'white',
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: '#f0f0f0',
   },
   infoLabel: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
   },
   infoValue: {
     fontSize: 14,
-    color: "#333",
-    fontWeight: "500",
+    color: '#333',
+    fontWeight: '500',
   },
   successText: {
-    color: "#28a745",
+    color: '#28a745',
   },
   codeBlock: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: '#1e1e1e',
     borderRadius: 8,
     padding: 12,
   },
   code: {
-    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
     fontSize: 12,
-    color: "#d4d4d4",
+    color: '#d4d4d4',
     lineHeight: 18,
   },
 });

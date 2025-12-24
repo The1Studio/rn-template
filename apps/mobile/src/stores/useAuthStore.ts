@@ -71,6 +71,7 @@ export const useAuthStore = create<AuthState>()(
 
 // Selectors
 export const selectUser = (state: AuthState) => state.user;
-export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
+export const selectIsAuthenticated = (state: AuthState) =>
+  state.isAuthenticated;
 export const selectToken = (state: AuthState) => state.token;
 export const selectIsHydrated = (state: AuthState) => state.isHydrated;

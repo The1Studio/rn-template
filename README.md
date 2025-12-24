@@ -86,6 +86,7 @@ npm install
 ```
 
 This will install dependencies for:
+
 - Root workspace
 - `apps/mobile`
 - `packages/core`
@@ -221,12 +222,14 @@ npm run ui typecheck
 Shared utilities, hooks, and constants.
 
 **Contents:**
+
 - `hooks/` - Reusable React hooks (useCounter, useToggle, etc.)
 - `utils/` - Utility functions (formatCurrency, colors, etc.)
 - `constants/` - Shared constants
 - `storage/` - Secure storage utilities using expo-secure-store
 
 **Usage in mobile app:**
+
 ```typescript
 import { useCounter, formatCurrency, colors, secureStorage } from '@repo/core';
 ```
@@ -312,24 +315,26 @@ For large data storage needs, consider using `AsyncStorage` or `expo-file-system
 Shared React Native UI components.
 
 **Components:**
+
 - `Button` - Customizable button component
 - `Card` - Container card component
 - `Text` - Styled text component
 - `Spacer` - Spacing utility component
 
 **Usage in mobile app:**
+
 ```typescript
 import { Button, Card, Text, Spacer } from '@repo/ui';
 ```
 
 ## Configuration Files
 
-| File | Location | Purpose |
-|------|----------|---------|
-| `app.json` | `apps/mobile/` | Expo app configuration |
-| `eas.json` | `apps/mobile/` | EAS build profiles |
+| File              | Location       | Purpose                                  |
+| ----------------- | -------------- | ---------------------------------------- |
+| `app.json`        | `apps/mobile/` | Expo app configuration                   |
+| `eas.json`        | `apps/mobile/` | EAS build profiles                       |
 | `metro.config.js` | `apps/mobile/` | Metro bundler configuration for monorepo |
-| `tsconfig.json` | All packages | TypeScript configuration |
+| `tsconfig.json`   | All packages   | TypeScript configuration                 |
 
 ## Troubleshooting
 
