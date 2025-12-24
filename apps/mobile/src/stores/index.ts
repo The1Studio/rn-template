@@ -7,6 +7,7 @@ export {
   selectUser,
   selectIsAuthenticated,
   selectToken,
+  selectIsHydrated,
 } from './useAuthStore';
 
 // Settings Store - language, notifications, biometric
