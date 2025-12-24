@@ -224,11 +224,88 @@ Shared utilities, hooks, and constants.
 - `hooks/` - Reusable React hooks (useCounter, useToggle, etc.)
 - `utils/` - Utility functions (formatCurrency, colors, etc.)
 - `constants/` - Shared constants
+- `storage/` - Secure storage utilities using expo-secure-store
 
 **Usage in mobile app:**
 ```typescript
-import { useCounter, formatCurrency, colors } from '@repo/core';
+import { useCounter, formatCurrency, colors, secureStorage } from '@repo/core';
 ```
+
+## Storage
+
+This template uses `expo-secure-store` for secure data persistence. It works with Expo Go (no development build required).
+
+### Basic Usage
+
+```typescript
+import { secureStorage } from '@repo/core';
+
+// Store a string
+await secureStorage.setString('token', 'abc123');
+
+// Retrieve a string
+const token = await secureStorage.getString('token');
+
+// Store an object
+await secureStorage.setObject('user', { id: 1, name: 'John' });
+
+// Retrieve an object
+const user = await secureStorage.getObject<User>('user');
+
+// Remove an item
+await secureStorage.remove('token');
+```
+
+### Zustand Persist with Secure Storage
+
+The template provides a `zustandSecureStorage` adapter for persisting Zustand stores:
+
+```typescript
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { zustandSecureStorage } from '@repo/core';
+
+export const useAuthStore = create(
+  persist(
+    (set) => ({
+      token: null,
+      setToken: (token) => set({ token }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => zustandSecureStorage),
+    }
+  )
+);
+```
+
+### Handling Async Hydration
+
+Since `expo-secure-store` is asynchronous, you need to wait for hydration before accessing persisted state:
+
+```tsx
+import { useAuthStore } from '@/stores/useAuthStore';
+
+function App() {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  // Show loading screen while hydrating
+  if (!isHydrated) {
+    return <SplashScreen />;
+  }
+
+  return isAuthenticated ? <HomeScreen /> : <LoginScreen />;
+}
+```
+
+### Storage Limitations
+
+- **Size limit**: 2KB per value (expo-secure-store limitation)
+- **API**: Async only (no synchronous reads/writes)
+- **Use case**: Best for sensitive data like tokens, credentials, and small user preferences
+
+For large data storage needs, consider using `AsyncStorage` or `expo-file-system` instead.
 
 ### @repo/ui
 
