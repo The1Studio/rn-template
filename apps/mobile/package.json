@@ -15,6 +15,7 @@
   "dependencies": {
     "@repo/core": "*",
     "@repo/ui": "*",
+    "axios": "^1.13.2",
     "expo": "~54.0.30",
     "expo-constants": "~18.0.12",
     "expo-linking": "~8.0.11",
