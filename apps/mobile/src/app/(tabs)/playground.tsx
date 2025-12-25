@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   Checkbox,
+  CollapsibleCard,
   ConfirmModal,
   DeleteConfirmModal,
   FormCheckbox,
@@ -356,6 +357,43 @@ export default function PlaygroundScreen() {
 
         <Spacer size={Spacing.lg} />
 
+        {/* Collapsible Card Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Collapsible Card Demo</Text>
+          <Text variant="caption">Expandable/collapsible sections</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.collapsibleSection}>
+            <CollapsibleCard title="What is React Native?" defaultExpanded>
+              <Text variant="body">
+                React Native is a JavaScript framework for building native
+                mobile apps. It uses React along with native platform
+                capabilities to create truly native applications.
+              </Text>
+            </CollapsibleCard>
+
+            <Spacer size={Spacing.sm} />
+
+            <CollapsibleCard title="How does it work?">
+              <Text variant="body">
+                React Native bridges JavaScript and native code, allowing you to
+                write components in JavaScript that render as native UI
+                elements. This provides the performance of native apps with the
+                development speed of JavaScript.
+              </Text>
+            </CollapsibleCard>
+
+            <Spacer size={Spacing.sm} />
+
+            <CollapsibleCard title="Disabled Section" disabled>
+              <Text variant="body">This content is not accessible.</Text>
+            </CollapsibleCard>
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
         {/* Select Field Demo */}
         <Card style={styles.card}>
           <Text variant="h2">Select Field Demo</Text>
@@ -602,6 +640,9 @@ const styles = StyleSheet.create({
   checkboxSection: {
     width: '100%',
     alignItems: 'flex-start',
+  },
+  collapsibleSection: {
+    width: '100%',
   },
   bottomSheetContent: {
     padding: Spacing.lg,
