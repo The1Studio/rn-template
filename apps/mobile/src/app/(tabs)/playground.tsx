@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
+  Avatar,
+  AvatarWithName,
   BottomSheetModal,
   Button,
   Card,
@@ -225,6 +227,190 @@ export default function PlaygroundScreen() {
               }
               variant="outline"
             />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Avatar Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Avatar Demo</Text>
+          <Text variant="caption">User avatars with image or initials</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              All Sizes (xs, sm, md, lg, xl):
+            </Text>
+            <View style={styles.avatarRow}>
+              <Avatar name="John Doe" size="xs" />
+              <Avatar name="Jane Smith" size="sm" />
+              <Avatar name="Bob Wilson" size="md" />
+              <Avatar name="Alice Brown" size="lg" />
+              <Avatar name="Charlie Davis" size="xl" />
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              Variants (circle, rounded, square):
+            </Text>
+            <View style={styles.avatarRow}>
+              <Avatar name="Circle" size="lg" variant="circle" />
+              <Avatar name="Rounded" size="lg" variant="rounded" />
+              <Avatar name="Square" size="lg" variant="square" />
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              With Image URL:
+            </Text>
+            <View style={styles.avatarRow}>
+              <Avatar
+                name="User 1"
+                size="lg"
+                imageUrl="https://i.pravatar.cc/150?img=1"
+              />
+              <Avatar
+                name="User 2"
+                size="lg"
+                imageUrl="https://i.pravatar.cc/150?img=2"
+              />
+              <Avatar
+                name="Fallback Test"
+                size="lg"
+                imageUrl="invalid-url-shows-initials"
+              />
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              Name Position = right (all sizes):
+            </Text>
+            <View style={styles.avatarColumn}>
+              <AvatarWithName
+                name="Extra Small"
+                size="xs"
+                namePosition="right"
+              />
+              <Spacer size={Spacing.xs} />
+              <AvatarWithName
+                name="Small Size"
+                size="sm"
+                namePosition="right"
+              />
+              <Spacer size={Spacing.xs} />
+              <AvatarWithName
+                name="Medium Size"
+                size="md"
+                imageUrl="https://i.pravatar.cc/150?img=3"
+                namePosition="right"
+              />
+              <Spacer size={Spacing.xs} />
+              <AvatarWithName
+                name="Large Size"
+                size="lg"
+                imageUrl="https://i.pravatar.cc/150?img=4"
+                namePosition="right"
+              />
+              <Spacer size={Spacing.xs} />
+              <AvatarWithName
+                name="Extra Large"
+                size="xl"
+                imageUrl="https://i.pravatar.cc/150?img=5"
+                namePosition="right"
+              />
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              Name Position = bottom (all sizes):
+            </Text>
+            <View style={styles.avatarRow}>
+              <AvatarWithName name="XS" size="xs" namePosition="bottom" />
+              <AvatarWithName name="SM" size="sm" namePosition="bottom" />
+              <AvatarWithName
+                name="MD"
+                size="md"
+                imageUrl="https://i.pravatar.cc/150?img=6"
+                namePosition="bottom"
+              />
+              <AvatarWithName
+                name="LG"
+                size="lg"
+                imageUrl="https://i.pravatar.cc/150?img=7"
+                namePosition="bottom"
+              />
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              Custom Colors:
+            </Text>
+            <View style={styles.avatarRow}>
+              <Avatar
+                name="Custom BG"
+                size="lg"
+                backgroundColor="#ef4444"
+                textColor="#ffffff"
+              />
+              <Avatar
+                name="Another"
+                size="lg"
+                backgroundColor="#22c55e"
+                textColor="#ffffff"
+              />
+              <Avatar
+                name="Third"
+                size="lg"
+                backgroundColor="#3b82f6"
+                textColor="#ffffff"
+              />
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.avatarSection}>
+            <Text variant="body" style={styles.avatarLabel}>
+              Rounded + Name Bottom:
+            </Text>
+            <View style={styles.avatarRow}>
+              <AvatarWithName
+                name="Alice Johnson"
+                size="lg"
+                variant="rounded"
+                imageUrl="https://i.pravatar.cc/150?img=8"
+                namePosition="bottom"
+              />
+              <AvatarWithName
+                name="Bob Smith"
+                size="lg"
+                variant="rounded"
+                namePosition="bottom"
+              />
+              <AvatarWithName
+                name="Carol White"
+                size="lg"
+                variant="rounded"
+                namePosition="bottom"
+              />
+            </View>
           </View>
         </Card>
 
@@ -738,6 +924,23 @@ const styles = StyleSheet.create({
   },
   collapsibleSection: {
     width: '100%',
+  },
+  avatarSection: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  avatarLabel: {
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    flexWrap: 'wrap',
+  },
+  avatarColumn: {
+    alignItems: 'flex-start',
   },
   bottomSheetContent: {
     padding: Spacing.lg,
