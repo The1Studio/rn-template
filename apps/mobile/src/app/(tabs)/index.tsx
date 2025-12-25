@@ -41,6 +41,7 @@ export default function HomeScreen() {
             <Text variant="body">• Select fields (single & multiple)</Text>
             <Text variant="body">• Confirm & Delete modals</Text>
             <Text variant="body">• Loading skeleton components</Text>
+            <Text variant="body">• Checkbox with form validation</Text>
           </View>
         </Card>
       </View>

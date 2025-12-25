@@ -6,8 +6,10 @@ import {
   BottomSheetModal,
   Button,
   Card,
+  Checkbox,
   ConfirmModal,
   DeleteConfirmModal,
+  FormCheckbox,
   FormSelectField,
   FormSelectMultiple,
   SelectField,
@@ -35,6 +37,11 @@ interface MultiSelectFormData {
   frameworks: string[];
 }
 
+interface CheckboxFormData {
+  termsAccepted: boolean;
+  newsletterSubscribed: boolean;
+}
+
 export default function PlaygroundScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
@@ -43,6 +50,7 @@ export default function PlaygroundScreen() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [isChecked, setIsChecked] = useState(false);
 
   const countryOptions = [
     { label: 'Vietnam', value: 'vn' },
@@ -95,6 +103,8 @@ export default function PlaygroundScreen() {
   const { control, handleSubmit } = useForm<FormData>();
   const { control: multiControl, handleSubmit: handleMultiSubmit } =
     useForm<MultiSelectFormData>();
+  const { control: checkboxControl, handleSubmit: handleCheckboxSubmit } =
+    useForm<CheckboxFormData>();
 
   const onSubmit = (data: FormData) => {
     toast.success({
@@ -107,6 +117,13 @@ export default function PlaygroundScreen() {
     toast.success({
       title: 'Multi-Select Form Submitted!',
       message: `Technologies: ${data.technologies?.join(', ') || 'None'}, Frameworks: ${data.frameworks?.join(', ') || 'None'}`,
+    });
+  };
+
+  const onCheckboxSubmit = (data: CheckboxFormData) => {
+    toast.success({
+      title: 'Checkbox Form Submitted!',
+      message: `Terms: ${data.termsAccepted ? 'Yes' : 'No'}, Newsletter: ${data.newsletterSubscribed ? 'Yes' : 'No'}`,
     });
   };
 
@@ -270,6 +287,71 @@ export default function PlaygroundScreen() {
             <Spacer size={Spacing.xs} />
             <SkeletonList count={3} />
           </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Checkbox Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Checkbox Demo</Text>
+          <Text variant="caption">Checkbox with different sizes</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.checkboxSection}>
+            <Checkbox
+              checked={isChecked}
+              onChange={setIsChecked}
+              label="Accept terms and conditions"
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <Checkbox
+              checked={true}
+              label="Small checkbox"
+              size="small"
+              disabled
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <Checkbox checked={false} label="Large checkbox" size="large" />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Form Checkbox Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Form Checkbox Demo</Text>
+          <Text variant="caption">With react-hook-form validation</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.checkboxSection}>
+            <FormCheckbox
+              control={checkboxControl}
+              name="termsAccepted"
+              label="I accept the terms and conditions"
+              rules={{ required: 'You must accept the terms' }}
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <FormCheckbox
+              control={checkboxControl}
+              name="newsletterSubscribed"
+              label="Subscribe to newsletter"
+            />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <Button
+            title="Submit Checkbox Form"
+            onPress={handleCheckboxSubmit(onCheckboxSubmit)}
+          />
         </Card>
 
         <Spacer size={Spacing.lg} />
@@ -514,6 +596,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   skeletonSection: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  checkboxSection: {
     width: '100%',
     alignItems: 'flex-start',
   },
