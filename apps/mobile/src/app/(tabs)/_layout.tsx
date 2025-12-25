@@ -81,6 +81,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon name="api" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="playground"
+        options={{
+          title: 'Playground',
+          tabBarIcon: ({ color }) => <TabIcon name="playground" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
@@ -92,6 +99,7 @@ function TabIcon({ name, color: _color }: { name: string; color: string }) {
     storage: '💾',
     stores: '📦',
     api: '🌐',
+    playground: '🎮',
   };
 
   return <Text style={{ fontSize: 24 }}>{icons[name] || '📱'}</Text>;
