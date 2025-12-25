@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useForm } from 'react-hook-form';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   BottomSheetModal,
   Button,
   Card,
+  FormSelectField,
+  SelectField,
   Spacer,
   Spacing,
   Text,
@@ -13,14 +16,56 @@ import {
 } from '../../lib';
 import { colors, useCounter } from '../../core';
 
+interface FormData {
+  language: string;
+  experience: string;
+}
+
 export default function HomeScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showScrollableSheet, setShowScrollableSheet] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+
+  const countryOptions = [
+    { label: 'Vietnam', value: 'vn' },
+    { label: 'United States', value: 'us' },
+    { label: 'Japan', value: 'jp' },
+    { label: 'South Korea', value: 'kr' },
+    { label: 'Singapore', value: 'sg' },
+  ];
+
+  const languageOptions = [
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+    { label: 'Python', value: 'py' },
+    { label: 'Go', value: 'go' },
+    { label: 'Rust', value: 'rust' },
+  ];
+
+  const experienceOptions = [
+    { label: 'Junior (0-2 years)', value: 'junior' },
+    { label: 'Mid-level (2-5 years)', value: 'mid' },
+    { label: 'Senior (5+ years)', value: 'senior' },
+  ];
+
+  const { control, handleSubmit } = useForm<FormData>();
+
+  const onSubmit = (data: FormData) => {
+    console.log('Form Data:', data);
+    toast.success({
+      title: 'Form Submitted!',
+      message: `Language: ${data.language}, Experience: ${data.experience}`,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <Text variant="h1">Home</Text>
         <Text variant="caption">Welcome to the app</Text>
 
@@ -92,10 +137,7 @@ export default function HomeScreen() {
           <Spacer size={Spacing.md} />
 
           <View style={styles.row}>
-            <Button
-              title="Simple"
-              onPress={() => setShowBottomSheet(true)}
-            />
+            <Button title="Simple" onPress={() => setShowBottomSheet(true)} />
             <Spacer size={Spacing.sm} horizontal />
             <Button
               title="Scrollable"
@@ -104,7 +146,67 @@ export default function HomeScreen() {
             />
           </View>
         </Card>
-      </View>
+
+        <Spacer size={Spacing.lg} />
+
+        <Card style={styles.card}>
+          <Text variant="h2">Select Field Demo</Text>
+          <Text variant="caption">Generic select component</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <SelectField
+            label="Country"
+            placeholder="Select a country"
+            options={countryOptions}
+            value={selectedCountry}
+            onChange={setSelectedCountry}
+            containerStyle={styles.selectContainer}
+          />
+
+          <Spacer size={Spacing.sm} />
+
+          <Text variant="caption">Selected: {selectedCountry || 'None'}</Text>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        <Card style={styles.card}>
+          <Text variant="h2">Form Select Demo</Text>
+          <Text variant="caption">With react-hook-form validation</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <FormSelectField
+            control={control}
+            name="language"
+            label="Programming Language"
+            placeholder="Select a language"
+            options={languageOptions}
+            rules={{ required: 'Language is required' }}
+            containerStyle={styles.selectContainer}
+          />
+
+          <Spacer size={Spacing.sm} />
+
+          <FormSelectField
+            control={control}
+            name="experience"
+            label="Experience Level"
+            placeholder="Select your experience"
+            options={experienceOptions}
+            rules={{ required: 'Experience level is required' }}
+            containerStyle={styles.selectContainer}
+            clearable={false}
+          />
+
+          <Spacer size={Spacing.md} />
+
+          <Button title="Submit Form" onPress={handleSubmit(onSubmit)} />
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+      </ScrollView>
 
       <BottomSheetModal
         modalVisible={showBottomSheet}
@@ -175,8 +277,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: Spacing.lg,
     alignItems: 'center',
   },
@@ -198,6 +302,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   listItem: {
+    width: '100%',
+  },
+  selectContainer: {
     width: '100%',
   },
 });
