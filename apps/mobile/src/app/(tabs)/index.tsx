@@ -39,6 +39,8 @@ export default function HomeScreen() {
             <Text variant="body">• Toast notifications</Text>
             <Text variant="body">• Bottom sheet modals</Text>
             <Text variant="body">• Select fields (single & multiple)</Text>
+            <Text variant="body">• Confirm & Delete modals</Text>
+            <Text variant="body">• Loading skeleton components</Text>
           </View>
         </Card>
       </View>

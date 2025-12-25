@@ -12,6 +12,11 @@ import {
   FormSelectMultiple,
   SelectField,
   SelectMultiple,
+  Skeleton,
+  SkeletonAvatar,
+  SkeletonCard,
+  SkeletonList,
+  SkeletonText,
   Spacer,
   Spacing,
   Text,
@@ -217,6 +222,53 @@ export default function PlaygroundScreen() {
               onPress={() => setShowConfirmModal(true)}
               variant="outline"
             />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Skeleton Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Skeleton Demo</Text>
+          <Text variant="caption">Loading placeholder components</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.skeletonSection}>
+            <Text variant="body">Basic Skeleton:</Text>
+            <Spacer size={Spacing.xs} />
+            <Skeleton height={16} width="80%" />
+            <Spacer size={Spacing.xs} />
+            <Skeleton height={16} width="60%" />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.skeletonSection}>
+            <Text variant="body">Avatar + Text:</Text>
+            <Spacer size={Spacing.xs} />
+            <View style={styles.row}>
+              <SkeletonAvatar size={40} />
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <SkeletonText lines={2} lineHeight={12} spacing={8} />
+              </View>
+            </View>
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.skeletonSection}>
+            <Text variant="body">Card Skeleton:</Text>
+            <Spacer size={Spacing.xs} />
+            <SkeletonCard />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.skeletonSection}>
+            <Text variant="body">List Skeleton:</Text>
+            <Spacer size={Spacing.xs} />
+            <SkeletonList count={3} />
           </View>
         </Card>
 
@@ -460,6 +512,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  skeletonSection: {
+    width: '100%',
+    alignItems: 'flex-start',
   },
   bottomSheetContent: {
     padding: Spacing.lg,
