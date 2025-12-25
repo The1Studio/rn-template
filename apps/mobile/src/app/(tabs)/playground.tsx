@@ -11,8 +11,10 @@ import {
   Checkbox,
   CollapsibleCard,
   ConfirmModal,
+  DatePicker,
   DeleteConfirmModal,
   FormCheckbox,
+  FormDatePicker,
   FormRadioGroup,
   FormSelectField,
   FormSelectMultiple,
@@ -52,6 +54,11 @@ interface RadioFormData {
   plan: string;
 }
 
+interface DateFormData {
+  birthDate: Date;
+  appointmentDate: Date;
+}
+
 export default function PlaygroundScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
@@ -62,6 +69,9 @@ export default function PlaygroundScreen() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [isChecked, setIsChecked] = useState(false);
   const [selectedGender, setSelectedGender] = useState<string | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
+  const [selectedRangeDate, setSelectedRangeDate] = useState<Date | null>(null);
 
   const countryOptions = [
     { label: 'Vietnam', value: 'vn' },
@@ -130,6 +140,8 @@ export default function PlaygroundScreen() {
     useForm<CheckboxFormData>();
   const { control: radioControl, handleSubmit: handleRadioSubmit } =
     useForm<RadioFormData>();
+  const { control: dateControl, handleSubmit: handleDateSubmit } =
+    useForm<DateFormData>();
 
   const onSubmit = (data: FormData) => {
     toast.success({
@@ -156,6 +168,13 @@ export default function PlaygroundScreen() {
     toast.success({
       title: 'Radio Form Submitted!',
       message: `Gender: ${data.gender || 'Not selected'}, Plan: ${data.plan || 'Not selected'}`,
+    });
+  };
+
+  const onDateSubmit = (data: DateFormData) => {
+    toast.success({
+      title: 'Date Form Submitted!',
+      message: `Birth: ${data.birthDate?.toLocaleDateString() || 'Not selected'}, Appointment: ${data.appointmentDate?.toLocaleString() || 'Not selected'}`,
     });
   };
 
@@ -412,6 +431,95 @@ export default function PlaygroundScreen() {
               />
             </View>
           </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* DatePicker Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">DatePicker Demo</Text>
+          <Text variant="caption">Date and DateTime selection</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.datePickerSection}>
+            <DatePicker
+              label="Select Date"
+              placeholder="Choose a date"
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <DatePicker
+              label="Select Date & Time"
+              placeholder="Choose date and time"
+              value={selectedDateTime}
+              onChange={setSelectedDateTime}
+              timePicker
+              modalTitle="Select Date & Time"
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <DatePicker
+              label="With Min/Max Date"
+              placeholder="Select within range (next 30 days)"
+              value={selectedRangeDate}
+              onChange={setSelectedRangeDate}
+              minDate={new Date()}
+              maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <DatePicker
+              label="Disabled"
+              placeholder="Cannot select"
+              disabled
+            />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Form DatePicker Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Form DatePicker Demo</Text>
+          <Text variant="caption">With react-hook-form validation</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.datePickerSection}>
+            <FormDatePicker
+              control={dateControl}
+              name="birthDate"
+              label="Birth Date"
+              placeholder="Select your birth date"
+              maxDate={new Date()}
+              rules={{ required: 'Birth date is required' }}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <FormDatePicker
+              control={dateControl}
+              name="appointmentDate"
+              label="Appointment Date & Time"
+              placeholder="Select appointment"
+              timePicker
+              minDate={new Date()}
+              rules={{ required: 'Appointment date is required' }}
+            />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <Button
+            title="Submit Date Form"
+            onPress={handleDateSubmit(onDateSubmit)}
+          />
         </Card>
 
         <Spacer size={Spacing.lg} />
@@ -941,6 +1049,9 @@ const styles = StyleSheet.create({
   },
   avatarColumn: {
     alignItems: 'flex-start',
+  },
+  datePickerSection: {
+    width: '100%',
   },
   bottomSheetContent: {
     padding: Spacing.lg,
