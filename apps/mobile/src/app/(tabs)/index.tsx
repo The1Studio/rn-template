@@ -1,6 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Card, Spacer, Spacing, Text, Typography } from '../../lib';
+import {
+  Button,
+  Card,
+  Spacer,
+  Spacing,
+  Text,
+  Typography,
+  toast,
+} from '../../lib';
 import { colors, useCounter } from '../../core';
 
 export default function HomeScreen() {
@@ -30,6 +38,44 @@ export default function HomeScreen() {
             <Button title="Reset" onPress={reset} variant="secondary" />
             <Spacer size={Spacing.sm} horizontal />
             <Button title="+" onPress={increment} />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        <Card style={styles.card}>
+          <Text variant="h2">Toast Demo</Text>
+          <Text variant="caption">Test toast notifications</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.row}>
+            <Button
+              title="Success"
+              onPress={() =>
+                toast.success({
+                  title: 'Operation completed!',
+                  position: 'bottom',
+                })
+              }
+            />
+            <Spacer size={Spacing.sm} horizontal />
+            <Button
+              title="Error"
+              onPress={() => toast.error({ title: 'Something went wrong' })}
+              variant="secondary"
+            />
+            <Spacer size={Spacing.sm} horizontal />
+            <Button
+              title="Info"
+              onPress={() =>
+                toast.info({
+                  title: 'Here is some information',
+                  position: 'bottom',
+                })
+              }
+              variant="outline"
+            />
           </View>
         </Card>
       </View>
