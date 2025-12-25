@@ -43,6 +43,7 @@ export default function HomeScreen() {
             <Text variant="body">• Loading skeleton components</Text>
             <Text variant="body">• Checkbox with form validation</Text>
             <Text variant="body">• Collapsible/expandable cards</Text>
+            <Text variant="body">• Radio buttons with form support</Text>
           </View>
         </Card>
       </View>

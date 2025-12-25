@@ -11,8 +11,10 @@ import {
   ConfirmModal,
   DeleteConfirmModal,
   FormCheckbox,
+  FormRadioGroup,
   FormSelectField,
   FormSelectMultiple,
+  RadioGroup,
   SelectField,
   SelectMultiple,
   Skeleton,
@@ -43,6 +45,11 @@ interface CheckboxFormData {
   newsletterSubscribed: boolean;
 }
 
+interface RadioFormData {
+  gender: string;
+  plan: string;
+}
+
 export default function PlaygroundScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
@@ -52,6 +59,7 @@ export default function PlaygroundScreen() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [isChecked, setIsChecked] = useState(false);
+  const [selectedGender, setSelectedGender] = useState<string | undefined>();
 
   const countryOptions = [
     { label: 'Vietnam', value: 'vn' },
@@ -101,11 +109,25 @@ export default function PlaygroundScreen() {
     { label: 'NestJS', value: 'nestjs' },
   ];
 
+  const genderOptions = [
+    { label: 'Male', value: 'male' },
+    { label: 'Female', value: 'female' },
+    { label: 'Other', value: 'other' },
+  ];
+
+  const planOptions = [
+    { label: 'Free Plan', value: 'free' },
+    { label: 'Pro Plan ($9.99/mo)', value: 'pro' },
+    { label: 'Enterprise (Contact us)', value: 'enterprise' },
+  ];
+
   const { control, handleSubmit } = useForm<FormData>();
   const { control: multiControl, handleSubmit: handleMultiSubmit } =
     useForm<MultiSelectFormData>();
   const { control: checkboxControl, handleSubmit: handleCheckboxSubmit } =
     useForm<CheckboxFormData>();
+  const { control: radioControl, handleSubmit: handleRadioSubmit } =
+    useForm<RadioFormData>();
 
   const onSubmit = (data: FormData) => {
     toast.success({
@@ -125,6 +147,13 @@ export default function PlaygroundScreen() {
     toast.success({
       title: 'Checkbox Form Submitted!',
       message: `Terms: ${data.termsAccepted ? 'Yes' : 'No'}, Newsletter: ${data.newsletterSubscribed ? 'Yes' : 'No'}`,
+    });
+  };
+
+  const onRadioSubmit = (data: RadioFormData) => {
+    toast.success({
+      title: 'Radio Form Submitted!',
+      message: `Gender: ${data.gender || 'Not selected'}, Plan: ${data.plan || 'Not selected'}`,
     });
   };
 
@@ -352,6 +381,68 @@ export default function PlaygroundScreen() {
           <Button
             title="Submit Checkbox Form"
             onPress={handleCheckboxSubmit(onCheckboxSubmit)}
+          />
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Radio Button Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Radio Button Demo</Text>
+          <Text variant="caption">Single selection from options</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.radioSection}>
+            <RadioGroup
+              label="Gender"
+              options={genderOptions}
+              value={selectedGender}
+              onChange={setSelectedGender}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <Text variant="caption">
+              Selected: {selectedGender || 'None'}
+            </Text>
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Form Radio Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Form Radio Demo</Text>
+          <Text variant="caption">With react-hook-form validation</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.radioSection}>
+            <FormRadioGroup
+              control={radioControl}
+              name="gender"
+              label="Gender"
+              options={genderOptions}
+              rules={{ required: 'Please select a gender' }}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <FormRadioGroup
+              control={radioControl}
+              name="plan"
+              label="Subscription Plan"
+              options={planOptions}
+              rules={{ required: 'Please select a plan' }}
+            />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <Button
+            title="Submit Radio Form"
+            onPress={handleRadioSubmit(onRadioSubmit)}
           />
         </Card>
 
@@ -638,6 +729,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   checkboxSection: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  radioSection: {
     width: '100%',
     alignItems: 'flex-start',
   },
