@@ -6,6 +6,8 @@ import {
   BottomSheetModal,
   Button,
   Card,
+  ConfirmModal,
+  DeleteConfirmModal,
   FormSelectField,
   FormSelectMultiple,
   SelectField,
@@ -32,6 +34,8 @@ export default function PlaygroundScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showScrollableSheet, setShowScrollableSheet] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
@@ -84,10 +88,8 @@ export default function PlaygroundScreen() {
   ];
 
   const { control, handleSubmit } = useForm<FormData>();
-  const {
-    control: multiControl,
-    handleSubmit: handleMultiSubmit,
-  } = useForm<MultiSelectFormData>();
+  const { control: multiControl, handleSubmit: handleMultiSubmit } =
+    useForm<MultiSelectFormData>();
 
   const onSubmit = (data: FormData) => {
     toast.success({
@@ -190,6 +192,30 @@ export default function PlaygroundScreen() {
               title="Scrollable"
               onPress={() => setShowScrollableSheet(true)}
               variant="secondary"
+            />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Confirm Modal Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Confirm Modal Demo</Text>
+          <Text variant="caption">Delete and custom confirmations</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.row}>
+            <Button
+              title="Delete"
+              onPress={() => setShowDeleteModal(true)}
+              variant="secondary"
+            />
+            <Spacer size={Spacing.sm} horizontal />
+            <Button
+              title="Custom"
+              onPress={() => setShowConfirmModal(true)}
+              variant="outline"
             />
           </View>
         </Card>
@@ -386,6 +412,30 @@ export default function PlaygroundScreen() {
             </View>
           </ScrollView>
         )}
+      />
+
+      <DeleteConfirmModal
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          toast.success({ title: 'Item deleted successfully!' });
+        }}
+        itemName="Sample Item"
+      />
+
+      <ConfirmModal
+        visible={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={() => {
+          setShowConfirmModal(false);
+          toast.info({ title: 'Action confirmed!' });
+        }}
+        title="Confirm Action"
+        message="Are you sure you want to proceed with this action?"
+        confirmText="Yes, proceed"
+        cancelText="No, cancel"
+        variant="warning"
       />
     </SafeAreaView>
   );
