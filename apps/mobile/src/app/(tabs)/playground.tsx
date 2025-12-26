@@ -1,7 +1,25 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useState, useCallback } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Pressable,
+  Text as RNText,
+} from 'react-native';
 import { useForm } from 'react-hook-form';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withRepeat,
+  withSequence,
+  interpolateColor,
+  Easing,
+  runOnJS,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
   Avatar,
   AvatarWithName,
@@ -33,6 +51,8 @@ import {
   SkeletonText,
   Spacer,
   Spacing,
+  SwipeableCard,
+  SwipeableCardProvider,
   Text,
   Typography,
   toast,
@@ -88,6 +108,438 @@ interface ComprehensiveFormData {
   birthDate: Date;
   eventDateRange: DateRange;
 }
+
+// Reanimated Demo Component
+function ReanimatedDemo() {
+  const scale = useSharedValue(1);
+  const rotation = useSharedValue(0);
+  const backgroundColor = useSharedValue(0);
+  const translateX = useSharedValue(0);
+  const opacity = useSharedValue(1);
+
+  const animatedBoxStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
+    backgroundColor: interpolateColor(
+      backgroundColor.value,
+      [0, 1, 2],
+      ['#3b82f6', '#22c55e', '#ef4444']
+    ),
+  }));
+
+  const animatedSlideStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    opacity: opacity.value,
+  }));
+
+  const handleSpringPress = () => {
+    scale.value = withSequence(
+      withSpring(1.3, { damping: 4, stiffness: 200 }),
+      withSpring(1, { damping: 4, stiffness: 200 })
+    );
+  };
+
+  const handleRotatePress = () => {
+    rotation.value = withTiming(rotation.value + 360, {
+      duration: 500,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  };
+
+  const handleColorPress = () => {
+    backgroundColor.value = withTiming((backgroundColor.value + 1) % 3, {
+      duration: 300,
+    });
+  };
+
+  const handleSlidePress = () => {
+    translateX.value = withSequence(
+      withTiming(100, { duration: 200 }),
+      withTiming(-100, { duration: 400 }),
+      withTiming(0, { duration: 200 })
+    );
+  };
+
+  const handlePulsePress = () => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.3, { duration: 200 }),
+        withTiming(1, { duration: 200 })
+      ),
+      3,
+      false
+    );
+  };
+
+  return (
+    <Card style={demoStyles.card}>
+      <Text variant="h2">Reanimated Demo</Text>
+      <Text variant="caption">
+        Smooth animations with react-native-reanimated
+      </Text>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.animationSection}>
+        <Text variant="body" style={demoStyles.label}>
+          Animated Box:
+        </Text>
+        <Animated.View style={[demoStyles.animatedBox, animatedBoxStyle]} />
+      </View>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.buttonRow}>
+        <Button title="Spring" onPress={handleSpringPress} variant="outline" />
+        <Spacer size={Spacing.xs} horizontal />
+        <Button title="Rotate" onPress={handleRotatePress} variant="outline" />
+        <Spacer size={Spacing.xs} horizontal />
+        <Button title="Color" onPress={handleColorPress} variant="outline" />
+      </View>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.animationSection}>
+        <Text variant="body" style={demoStyles.label}>
+          Slide Animation:
+        </Text>
+        <Animated.View style={[demoStyles.slideBox, animatedSlideStyle]} />
+      </View>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.buttonRow}>
+        <Button title="Slide" onPress={handleSlidePress} variant="secondary" />
+        <Spacer size={Spacing.xs} horizontal />
+        <Button title="Pulse" onPress={handlePulsePress} variant="secondary" />
+      </View>
+    </Card>
+  );
+}
+
+// Gesture Handler Demo Component
+function GestureHandlerDemo() {
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scale = useSharedValue(1);
+  const savedTranslateX = useSharedValue(0);
+  const savedTranslateY = useSharedValue(0);
+  const [tapCount, setTapCount] = useState(0);
+  const [gestureInfo, setGestureInfo] = useState('Tap or drag the boxes');
+
+  const updateGestureInfo = useCallback((info: string) => {
+    setGestureInfo(info);
+  }, []);
+
+  const incrementTap = useCallback(() => {
+    setTapCount((prev) => prev + 1);
+  }, []);
+
+  // Pan gesture for draggable box
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      runOnJS(updateGestureInfo)('Dragging...');
+    })
+    .onUpdate((event) => {
+      translateX.value = savedTranslateX.value + event.translationX;
+      translateY.value = savedTranslateY.value + event.translationY;
+    })
+    .onEnd(() => {
+      savedTranslateX.value = translateX.value;
+      savedTranslateY.value = translateY.value;
+      runOnJS(updateGestureInfo)('Drag ended');
+    });
+
+  // Tap gesture
+  const tapGesture = Gesture.Tap()
+    .onStart(() => {
+      scale.value = withSpring(0.9);
+    })
+    .onEnd(() => {
+      scale.value = withSpring(1);
+      runOnJS(incrementTap)();
+      runOnJS(updateGestureInfo)('Tapped!');
+    });
+
+  // Double tap gesture
+  const doubleTapGesture = Gesture.Tap()
+    .numberOfTaps(2)
+    .onEnd(() => {
+      scale.value = withSequence(withSpring(1.5), withSpring(1));
+      runOnJS(updateGestureInfo)('Double tapped!');
+    });
+
+  // Combine tap gestures
+  const combinedTapGesture = Gesture.Exclusive(doubleTapGesture, tapGesture);
+
+  const draggableStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
+
+  const tappableStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const resetDraggable = () => {
+    translateX.value = withSpring(0);
+    translateY.value = withSpring(0);
+    savedTranslateX.value = 0;
+    savedTranslateY.value = 0;
+    setGestureInfo('Position reset');
+  };
+
+  // Swipeable render actions
+  const renderLeftActions = (_progress: any, _drag: any, close: () => void) => (
+    <Pressable
+      onPress={() => {
+        toast.info({ title: 'Archived!' });
+        close();
+      }}
+      style={demoStyles.swipeActionLeft}
+    >
+      <RNText style={demoStyles.swipeActionText}>Archive</RNText>
+    </Pressable>
+  );
+
+  const renderRightActions = (
+    _progress: any,
+    _drag: any,
+    close: () => void
+  ) => (
+    <View style={demoStyles.swipeActionsRight}>
+      <Pressable
+        onPress={() => {
+          toast.info({ title: 'Edit!' });
+          close();
+        }}
+        style={demoStyles.swipeActionEdit}
+      >
+        <RNText style={demoStyles.swipeActionText}>Edit</RNText>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          toast.error({ title: 'Deleted!' });
+          close();
+        }}
+        style={demoStyles.swipeActionDelete}
+      >
+        <RNText style={demoStyles.swipeActionText}>Delete</RNText>
+      </Pressable>
+    </View>
+  );
+
+  // Sample list items
+  const listItems = [
+    { id: '1', title: 'Item 1', subtitle: 'Swipe to see actions' },
+    { id: '2', title: 'Item 2', subtitle: 'Only one item can be open' },
+    { id: '3', title: 'Item 3', subtitle: 'Opening another closes previous' },
+  ];
+
+  return (
+    <Card style={demoStyles.card}>
+      <Text variant="h2">Gesture Handler Demo</Text>
+      <Text variant="caption">
+        Touch gestures with react-native-gesture-handler
+      </Text>
+
+      <Spacer size={Spacing.md} />
+
+      <Text variant="body" style={demoStyles.gestureInfo}>
+        {gestureInfo}
+      </Text>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.gestureSection}>
+        <Text variant="body" style={demoStyles.label}>
+          Draggable Box (Pan Gesture):
+        </Text>
+        <View style={demoStyles.gestureArea}>
+          <GestureDetector gesture={panGesture}>
+            <Animated.View style={[demoStyles.draggableBox, draggableStyle]}>
+              <Text style={demoStyles.boxText}>Drag me</Text>
+            </Animated.View>
+          </GestureDetector>
+        </View>
+        <Button
+          title="Reset Position"
+          onPress={resetDraggable}
+          variant="outline"
+        />
+      </View>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.gestureSection}>
+        <Text variant="body" style={demoStyles.label}>
+          Tappable Box (Tap Count: {tapCount}):
+        </Text>
+        <GestureDetector gesture={combinedTapGesture}>
+          <Animated.View style={[demoStyles.tappableBox, tappableStyle]}>
+            <Text style={demoStyles.boxText}>Tap / Double Tap</Text>
+          </Animated.View>
+        </GestureDetector>
+      </View>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.gestureSection}>
+        <Text variant="body" style={demoStyles.label}>
+          Simple SwipeableCard (standalone):
+        </Text>
+        <SwipeableCard
+          renderLeftActions={renderLeftActions}
+          renderRightActions={renderRightActions}
+        >
+          <Text variant="body">Standalone Card</Text>
+          <Text variant="caption">Works without Provider</Text>
+        </SwipeableCard>
+      </View>
+
+      <Spacer size={Spacing.md} />
+
+      <View style={demoStyles.gestureSection}>
+        <Text variant="body" style={demoStyles.label}>
+          SwipeableCard List (exclusive open):
+        </Text>
+        <SwipeableCardProvider>
+          {listItems.map((item) => (
+            <View key={item.id} style={demoStyles.listItemWrapper}>
+              <SwipeableCard
+                renderLeftActions={renderLeftActions}
+                renderRightActions={renderRightActions}
+              >
+                <Text variant="body">{item.title}</Text>
+                <Text variant="caption">{item.subtitle}</Text>
+              </SwipeableCard>
+            </View>
+          ))}
+        </SwipeableCardProvider>
+      </View>
+    </Card>
+  );
+}
+
+// Demo styles
+const demoStyles = StyleSheet.create({
+  card: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  animationSection: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  label: {
+    fontWeight: '600',
+    marginBottom: 12,
+    alignSelf: 'flex-start',
+  },
+  animatedBox: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  slideBox: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#8b5cf6',
+    borderRadius: 12,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  gestureSection: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  gestureInfo: {
+    color: '#6b7280',
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  gestureArea: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  draggableBox: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  tappableBox: {
+    width: 140,
+    height: 80,
+    backgroundColor: '#22c55e',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  boxText: {
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  listItemWrapper: {
+    marginBottom: 8,
+    width: '100%',
+  },
+  swipeActionLeft: {
+    backgroundColor: '#8b5cf6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  swipeActionsRight: {
+    flexDirection: 'row',
+  },
+  swipeActionEdit: {
+    backgroundColor: '#3b82f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  swipeActionDelete: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  swipeActionText: {
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+});
 
 export default function PlaygroundScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
@@ -350,6 +802,16 @@ export default function PlaygroundScreen() {
             />
           </View>
         </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Reanimated Demo */}
+        <ReanimatedDemo />
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Gesture Handler Demo */}
+        <GestureHandlerDemo />
 
         <Spacer size={Spacing.lg} />
 
