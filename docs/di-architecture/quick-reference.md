@@ -574,8 +574,8 @@ A: Create adapters per platform, register based on `Platform.OS`.
 
 ## Resources
 
-- **Essential Guide**: `/plans/reports/brainstorm-251227-0117-di-essential-production-guide.md`
-- **Advanced Patterns**: `/plans/reports/brainstorm-251227-0118-di-advanced-patterns-reference.md`
+- **Essential Guide**: [./essential-guide.md](./essential-guide.md)
+- **Advanced Patterns**: [./advanced-patterns.md](./advanced-patterns.md)
 - **TSyringe Docs**: https://github.com/microsoft/tsyringe
 - **Reflect Metadata**: https://www.npmjs.com/package/reflect-metadata
 
