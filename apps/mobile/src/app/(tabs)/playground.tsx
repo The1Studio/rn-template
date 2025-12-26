@@ -12,12 +12,17 @@ import {
   CollapsibleCard,
   ConfirmModal,
   DatePicker,
+  DateRange,
+  DateRangePicker,
   DeleteConfirmModal,
   FormCheckbox,
   FormDatePicker,
+  FormDateRangePicker,
+  FormPasswordInput,
   FormRadioGroup,
   FormSelectField,
   FormSelectMultiple,
+  FormTextInput,
   RadioGroup,
   SelectField,
   SelectMultiple,
@@ -59,6 +64,31 @@ interface DateFormData {
   appointmentDate: Date;
 }
 
+interface DateRangeFormData {
+  vacationPeriod: DateRange;
+  projectTimeline: DateRange;
+}
+
+// Comprehensive form with all field types
+interface ComprehensiveFormData {
+  // Text inputs
+  fullName: string;
+  email: string;
+  phone: string;
+  password: string;
+  // Select fields
+  country: string;
+  skills: string[];
+  // Checkbox
+  agreeTerms: boolean;
+  receiveUpdates: boolean;
+  // Radio
+  gender: string;
+  // Date fields
+  birthDate: Date;
+  eventDateRange: DateRange;
+}
+
 export default function PlaygroundScreen() {
   const { count, increment, decrement, reset } = useCounter(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
@@ -72,6 +102,11 @@ export default function PlaygroundScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
   const [selectedRangeDate, setSelectedRangeDate] = useState<Date | null>(null);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
+    null
+  );
+  const [selectedDateRangeWithMinMax, setSelectedDateRangeWithMinMax] =
+    useState<DateRange | null>(null);
 
   const countryOptions = [
     { label: 'Vietnam', value: 'vn' },
@@ -142,6 +177,53 @@ export default function PlaygroundScreen() {
     useForm<RadioFormData>();
   const { control: dateControl, handleSubmit: handleDateSubmit } =
     useForm<DateFormData>();
+  const { control: dateRangeControl, handleSubmit: handleDateRangeSubmit } =
+    useForm<DateRangeFormData>();
+  const {
+    control: comprehensiveControl,
+    handleSubmit: handleComprehensiveSubmit,
+    reset: resetComprehensiveForm,
+    setValue: setComprehensiveValue,
+  } = useForm<ComprehensiveFormData>();
+
+  // Auto-fill sample data for comprehensive form
+  const autoFillComprehensiveForm = () => {
+    const sampleData: ComprehensiveFormData = {
+      fullName: 'Nguyen Van A',
+      email: 'nguyenvana@example.com',
+      phone: '0901234567',
+      password: 'SecurePass123!',
+      country: 'vn',
+      skills: ['react', 'ts', 'node'],
+      agreeTerms: true,
+      receiveUpdates: true,
+      gender: 'male',
+      birthDate: new Date(1995, 5, 15),
+      eventDateRange: {
+        startDate: new Date(2025, 0, 1),
+        endDate: new Date(2025, 0, 7),
+      },
+    };
+
+    setComprehensiveValue('fullName', sampleData.fullName);
+    setComprehensiveValue('email', sampleData.email);
+    setComprehensiveValue('phone', sampleData.phone);
+    setComprehensiveValue('password', sampleData.password);
+    setComprehensiveValue('country', sampleData.country);
+    setComprehensiveValue('skills', sampleData.skills);
+    setComprehensiveValue('agreeTerms', sampleData.agreeTerms);
+    setComprehensiveValue('receiveUpdates', sampleData.receiveUpdates);
+    setComprehensiveValue('gender', sampleData.gender);
+    setComprehensiveValue('birthDate', sampleData.birthDate);
+    setComprehensiveValue('eventDateRange', sampleData.eventDateRange);
+
+    toast.success({ title: 'Form auto-filled!' });
+  };
+
+  const clearComprehensiveForm = () => {
+    resetComprehensiveForm();
+    toast.info({ title: 'Form cleared!' });
+  };
 
   const onSubmit = (data: FormData) => {
     toast.success({
@@ -175,6 +257,26 @@ export default function PlaygroundScreen() {
     toast.success({
       title: 'Date Form Submitted!',
       message: `Birth: ${data.birthDate?.toLocaleDateString() || 'Not selected'}, Appointment: ${data.appointmentDate?.toLocaleString() || 'Not selected'}`,
+    });
+  };
+
+  const onDateRangeSubmit = (data: DateRangeFormData) => {
+    const formatRange = (range: DateRange | null) => {
+      if (!range?.startDate) return 'Not selected';
+      const start = range.startDate.toLocaleDateString();
+      const end = range.endDate?.toLocaleDateString() || 'ongoing';
+      return `${start} - ${end}`;
+    };
+    toast.success({
+      title: 'Date Range Form Submitted!',
+      message: `Vacation: ${formatRange(data.vacationPeriod)}, Project: ${formatRange(data.projectTimeline)}`,
+    });
+  };
+
+  const onComprehensiveSubmit = (data: ComprehensiveFormData) => {
+    toast.success({
+      title: 'Comprehensive Form Submitted!',
+      message: `Name: ${data.fullName}, Email: ${data.email}`,
     });
   };
 
@@ -247,6 +349,165 @@ export default function PlaygroundScreen() {
               variant="outline"
             />
           </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Comprehensive Form Demo with Auto-Fill */}
+        <Card style={styles.card}>
+          <Text variant="h2">Comprehensive Form Demo</Text>
+          <Text variant="caption">All form fields with auto-fill feature</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.row}>
+            <Button title="Auto Fill" onPress={autoFillComprehensiveForm} />
+            <Spacer size={Spacing.sm} horizontal />
+            <Button
+              title="Clear"
+              onPress={clearComprehensiveForm}
+              variant="outline"
+            />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.formSection}>
+            {/* Text Inputs */}
+            <FormTextInput
+              control={comprehensiveControl}
+              name="fullName"
+              label="Full Name"
+              placeholder="Enter your full name"
+              rules={{ required: 'Full name is required' }}
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <FormTextInput
+              control={comprehensiveControl}
+              name="email"
+              label="Email"
+              placeholder="Enter your email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              rules={{
+                required: 'Email is required',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address',
+                },
+              }}
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <FormTextInput
+              control={comprehensiveControl}
+              name="phone"
+              label="Phone Number"
+              placeholder="Enter your phone number"
+              keyboardType="phone-pad"
+              rules={{ required: 'Phone number is required' }}
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <FormPasswordInput
+              control={comprehensiveControl}
+              name="password"
+              label="Password"
+              placeholder="Enter your password"
+              rules={{
+                required: 'Password is required',
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters',
+                },
+              }}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            {/* Select Fields */}
+            <FormSelectField
+              control={comprehensiveControl}
+              name="country"
+              label="Country"
+              placeholder="Select your country"
+              options={countryOptions}
+              rules={{ required: 'Country is required' }}
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <FormSelectMultiple
+              control={comprehensiveControl}
+              name="skills"
+              label="Skills"
+              placeholder="Select your skills"
+              options={skillOptions}
+              rules={{ required: 'Please select at least one skill' }}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            {/* Checkboxes */}
+            <FormCheckbox
+              control={comprehensiveControl}
+              name="agreeTerms"
+              label="I agree to the terms and conditions"
+              rules={{ required: 'You must agree to the terms' }}
+            />
+
+            <Spacer size={Spacing.xs} />
+
+            <FormCheckbox
+              control={comprehensiveControl}
+              name="receiveUpdates"
+              label="Receive email updates"
+            />
+
+            <Spacer size={Spacing.md} />
+
+            {/* Radio Group */}
+            <FormRadioGroup
+              control={comprehensiveControl}
+              name="gender"
+              label="Gender"
+              options={genderOptions}
+              rules={{ required: 'Please select your gender' }}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            {/* Date Pickers */}
+            <FormDatePicker
+              control={comprehensiveControl}
+              name="birthDate"
+              label="Birth Date"
+              placeholder="Select your birth date"
+              maxDate={new Date()}
+              rules={{ required: 'Birth date is required' }}
+            />
+
+            <Spacer size={Spacing.sm} />
+
+            <FormDateRangePicker
+              control={comprehensiveControl}
+              name="eventDateRange"
+              label="Event Date Range"
+              placeholder="Select event dates"
+              rules={{ required: 'Event date range is required' }}
+            />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <Button
+            title="Submit Form"
+            onPress={handleComprehensiveSubmit(onComprehensiveSubmit)}
+          />
         </Card>
 
         <Spacer size={Spacing.lg} />
@@ -474,11 +735,7 @@ export default function PlaygroundScreen() {
 
             <Spacer size={Spacing.md} />
 
-            <DatePicker
-              label="Disabled"
-              placeholder="Cannot select"
-              disabled
-            />
+            <DatePicker label="Disabled" placeholder="Cannot select" disabled />
           </View>
         </Card>
 
@@ -519,6 +776,82 @@ export default function PlaygroundScreen() {
           <Button
             title="Submit Date Form"
             onPress={handleDateSubmit(onDateSubmit)}
+          />
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* DateRangePicker Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">DateRangePicker Demo</Text>
+          <Text variant="caption">Select a date range</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.datePickerSection}>
+            <DateRangePicker
+              label="Select Date Range"
+              placeholder="Choose start and end date"
+              value={selectedDateRange}
+              onChange={setSelectedDateRange}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <DateRangePicker
+              label="With Min/Max Date"
+              placeholder="Select within next 60 days"
+              value={selectedDateRangeWithMinMax}
+              onChange={setSelectedDateRangeWithMinMax}
+              minDate={new Date()}
+              maxDate={new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <DateRangePicker
+              label="Disabled"
+              placeholder="Cannot select"
+              disabled
+            />
+          </View>
+        </Card>
+
+        <Spacer size={Spacing.lg} />
+
+        {/* Form DateRangePicker Demo */}
+        <Card style={styles.card}>
+          <Text variant="h2">Form DateRangePicker Demo</Text>
+          <Text variant="caption">With react-hook-form validation</Text>
+
+          <Spacer size={Spacing.md} />
+
+          <View style={styles.datePickerSection}>
+            <FormDateRangePicker
+              control={dateRangeControl}
+              name="vacationPeriod"
+              label="Vacation Period"
+              placeholder="Select vacation dates"
+              minDate={new Date()}
+              rules={{ required: 'Vacation period is required' }}
+            />
+
+            <Spacer size={Spacing.md} />
+
+            <FormDateRangePicker
+              control={dateRangeControl}
+              name="projectTimeline"
+              label="Project Timeline"
+              placeholder="Select project dates"
+              rules={{ required: 'Project timeline is required' }}
+            />
+          </View>
+
+          <Spacer size={Spacing.md} />
+
+          <Button
+            title="Submit Date Range Form"
+            onPress={handleDateRangeSubmit(onDateRangeSubmit)}
           />
         </Card>
 
@@ -697,9 +1030,7 @@ export default function PlaygroundScreen() {
 
             <Spacer size={Spacing.md} />
 
-            <Text variant="caption">
-              Selected: {selectedGender || 'None'}
-            </Text>
+            <Text variant="caption">Selected: {selectedGender || 'None'}</Text>
           </View>
         </Card>
 
@@ -1051,6 +1382,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   datePickerSection: {
+    width: '100%',
+  },
+  formSection: {
     width: '100%',
   },
   bottomSheetContent: {
