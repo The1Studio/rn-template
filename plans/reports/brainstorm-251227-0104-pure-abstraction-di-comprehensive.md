@@ -216,6 +216,313 @@ export class LoginUseCase {
 
 ---
 
+## Complete Project Structure
+
+### Monorepo Organization
+
+```
+rn-template/                              # Root monorepo
+├── packages/                             # Shared packages (all layers)
+│   │
+│   ├── core/                            # Layer 1: Business Logic
+│   │   ├── src/
+│   │   │   ├── contracts/              # Interface definitions
+│   │   │   │   ├── IAuthService.ts
+│   │   │   │   ├── IPaymentService.ts
+│   │   │   │   ├── IDataService.ts
+│   │   │   │   ├── IAnalyticsService.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── implementations/        # Concrete implementations
+│   │   │   │   ├── custom/            # Self-developed services
+│   │   │   │   │   ├── CustomAuthService.ts
+│   │   │   │   │   ├── CustomPaymentService.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   │
+│   │   │   │   └── adapters/          # Third-party wrappers
+│   │   │   │       ├── firebase/
+│   │   │   │       │   ├── FirebaseAuthAdapter.ts
+│   │   │   │       │   ├── FirestoreDataAdapter.ts
+│   │   │   │       │   └── index.ts
+│   │   │   │       │
+│   │   │   │       ├── supabase/
+│   │   │   │       │   ├── SupabaseAuthAdapter.ts
+│   │   │   │       │   ├── SupabaseDataAdapter.ts
+│   │   │   │       │   └── index.ts
+│   │   │   │       │
+│   │   │   │       ├── stripe/
+│   │   │   │       │   ├── StripePaymentAdapter.ts
+│   │   │   │       │   └── index.ts
+│   │   │   │       │
+│   │   │   │       └── auth0/
+│   │   │   │           ├── Auth0Adapter.ts
+│   │   │   │           └── index.ts
+│   │   │   │
+│   │   │   ├── di/                    # Dependency Injection
+│   │   │   │   ├── types/
+│   │   │   │   │   ├── tokens.ts      # Symbol tokens
+│   │   │   │   │   └── index.ts
+│   │   │   │   │
+│   │   │   │   ├── containers/
+│   │   │   │   │   ├── baseContainer.ts
+│   │   │   │   │   ├── clientAContainer.ts
+│   │   │   │   │   ├── clientBContainer.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   │
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── react/                 # React-specific DI
+│   │   │   │   ├── DIContext.tsx
+│   │   │   │   ├── DIProvider.tsx
+│   │   │   │   ├── useDIContainer.ts
+│   │   │   │   ├── useService.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── utils/                 # Utility functions
+│   │   │   │   ├── logger.ts
+│   │   │   │   ├── validation.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── types/                 # TypeScript types
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── payment.ts
+│   │   │   │   ├── data.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── ui-primitives/                  # Layer 2: Headless UI Hooks
+│   │   ├── src/
+│   │   │   ├── hooks/
+│   │   │   │   ├── useButton.ts
+│   │   │   │   ├── useInput.ts
+│   │   │   │   ├── useModal.ts
+│   │   │   │   ├── useDropdown.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── contracts/             # UI component contracts
+│   │   │   │   ├── IButton.ts
+│   │   │   │   ├── IInput.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── implementations/
+│   │   │   │   ├── custom/           # Custom headless hooks
+│   │   │   │   └── adapters/         # Adapt Radix, React Aria, etc.
+│   │   │   │
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── ui-theme-material/              # Layer 3: Material Design Theme
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── Button.tsx         # Uses useButton from primitives
+│   │   │   │   ├── Input.tsx          # Uses useInput from primitives
+│   │   │   │   ├── Modal.tsx          # Uses useModal from primitives
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── theme/
+│   │   │   │   ├── colors.ts
+│   │   │   │   ├── typography.ts
+│   │   │   │   ├── spacing.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── ui-theme-glassmorphism/         # Layer 3: Alternative Theme
+│   │   ├── src/
+│   │   │   ├── components/           # Same component names
+│   │   │   │   ├── Button.tsx        # Different styling
+│   │   │   │   ├── Input.tsx
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── theme/
+│   │   │   │   ├── effects.ts        # Glass blur, frosted glass
+│   │   │   │   ├── colors.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── index.ts
+│   │   │
+│   │   └── package.json
+│   │
+│   ├── features-auth-flow/             # Layer 4: Auth Feature Module
+│   │   ├── src/
+│   │   │   ├── contracts/
+│   │   │   │   ├── IAuthFlow.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── implementations/
+│   │   │   │   ├── custom/
+│   │   │   │   │   ├── EmailPasswordAuthFlow.ts
+│   │   │   │   │   ├── SocialAuthFlow.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   │
+│   │   │   │   └── adapters/
+│   │   │   │       ├── firebase/
+│   │   │   │       │   └── FirebaseAuthFlowAdapter.ts
+│   │   │   │       │
+│   │   │   │       └── auth0/
+│   │   │   │           └── Auth0FlowAdapter.ts
+│   │   │   │
+│   │   │   ├── screens/              # Feature screens
+│   │   │   │   ├── LoginScreen.tsx
+│   │   │   │   ├── SignupScreen.tsx
+│   │   │   │   ├── ForgotPasswordScreen.tsx
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── di/
+│   │   │   │   ├── tokens.ts
+│   │   │   │   ├── container.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── index.ts
+│   │   │
+│   │   └── package.json
+│   │
+│   └── features-payments/              # Layer 4: Payments Feature
+│       ├── src/
+│       │   ├── contracts/
+│       │   ├── implementations/
+│       │   ├── screens/
+│       │   ├── di/
+│       │   └── index.ts
+│       │
+│       └── package.json
+│
+├── apps/                               # Client applications
+│   │
+│   ├── client-a/                       # Client A app
+│   │   ├── src/
+│   │   │   ├── di/
+│   │   │   │   └── container.ts       # Client-specific DI config
+│   │   │   │       # Uses Firebase + Material theme
+│   │   │   │
+│   │   │   ├── App.tsx
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── .env.production
+│   │   │   # AUTH_PROVIDER=firebase
+│   │   │   # THEME=material
+│   │   │   # FIREBASE_CONFIG=...
+│   │   │
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── client-b/                       # Client B app
+│   │   ├── src/
+│   │   │   ├── di/
+│   │   │   │   └── container.ts       # Different DI config
+│   │   │   │       # Uses Supabase + Glassmorphism theme
+│   │   │   │
+│   │   │   ├── App.tsx
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── .env.production
+│   │   │   # AUTH_PROVIDER=supabase
+│   │   │   # THEME=glassmorphism
+│   │   │   # SUPABASE_URL=...
+│   │   │
+│   │   └── package.json
+│   │
+│   └── client-c/                       # Client C app
+│       └── [similar structure]
+│
+├── docs/                               # Documentation
+│   ├── di-architecture/
+│   │   ├── README.md
+│   │   ├── essential-guide.md
+│   │   ├── advanced-patterns.md
+│   │   └── quick-reference.md
+│   │
+│   ├── studio-architecture.md
+│   └── [other docs]
+│
+├── .github/
+│   └── workflows/
+│       ├── build-client-a.yml         # Client A CI/CD
+│       ├── build-client-b.yml         # Client B CI/CD
+│       └── build-client-c.yml         # Client C CI/CD
+│
+├── package.json                        # Root package.json
+├── turbo.json                          # Turborepo config
+├── tsconfig.base.json                  # Base TypeScript config
+└── README.md
+```
+
+### Key Organizational Principles
+
+**1. Clear Layer Separation**
+- Each layer is its own package
+- Depends only on layers below
+- No circular dependencies
+
+**2. Interface-First Design**
+- Every package has `contracts/` directory
+- Implementations in separate directory
+- Third-party adapters isolated
+
+**3. Per-Client Customization**
+- Each app has own DI container configuration
+- Environment variables control service selection
+- Same codebase, different implementations
+
+**4. Scalability**
+- Easy to add new clients (copy app template)
+- Easy to add new themes (copy theme package)
+- Easy to swap providers (change container config)
+
+**5. Maintainability**
+- Monorepo keeps everything in sync
+- Shared packages ensure consistency
+- Clear naming convention
+
+### Example: Adding a New Client
+
+```bash
+# 1. Copy client template
+cp -r apps/client-a apps/client-d
+
+# 2. Update DI container
+# apps/client-d/src/di/container.ts
+container.register<IAuthService>(TYPES.IAuthService, {
+  useClass: Auth0Adapter,  // Different provider
+});
+
+# 3. Update environment
+# apps/client-d/.env.production
+AUTH_PROVIDER=auth0
+THEME=material
+AUTH0_DOMAIN=client-d.auth0.com
+
+# 4. Build
+yarn workspace client-d build
+
+# Done! New client with different auth provider
+```
+
+### Example: Switching Theme for Existing Client
+
+```typescript
+// apps/client-a/src/di/container.ts
+
+// Before: Material theme
+import { Button } from '@studio/ui-theme-material';
+
+// After: Glassmorphism theme (1 line change)
+import { Button } from '@studio/ui-theme-glassmorphism';
+
+// Component code unchanged! Same API, different styling
+```
+
+---
+
 ## Complete Code Examples
 
 ### Layer 1: Core - Authentication
