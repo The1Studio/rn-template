@@ -183,6 +183,15 @@ const LoginScreen = () => {
 - [Code Standards](../code-standards.md) - Coding conventions
 - [Design Guidelines](../design-guidelines.md) - UI/UX patterns
 
+## Historical Versions
+
+For reference, previous iterations of this documentation (kept in `plans/reports/`):
+
+- [v1.0: Pure Abstraction DI Architecture](../../plans/reports/brainstorm-251227-0046-pure-abstraction-di-architecture.md) - Original pure abstraction guide with basic concepts
+- [v2.0: Comprehensive DI Architecture](../../plans/reports/brainstorm-251227-0104-pure-abstraction-di-comprehensive.md) - Enhanced version with React integration and advanced patterns
+
+**Note**: The current 3-tier documentation supersedes these historical versions. Use them only for reference or to understand the evolution of the architecture.
+
 ## Support
 
 - **Issues**: Found a gap in documentation? Open an issue
