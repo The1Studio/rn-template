@@ -133,85 +133,1342 @@ export class LoginUseCase {
 
 ## 4-Layer Architecture with Pure Abstraction
 
-### Layer 1: @studio/core (Business Logic)
+### Overview
+
+The studio architecture consists of 4 layers, each with complete pure abstraction:
 
 ```
-@studio/core/
-├─ contracts/                    # INTERFACES
-│  ├─ IAuthService.ts
-│  ├─ IPaymentService.ts
-│  └─ IAnalyticsService.ts
-│
-├─ implementations/
-│  ├─ custom/                   # Self-developed
-│  │  ├─ CustomAuthService.ts
-│  │  └─ CustomPaymentService.ts
-│  │
-│  └─ adapters/                 # Third-party
-│     ├─ firebase/
-│     ├─ supabase/
-│     ├─ stripe/
-│     └─ auth0/
-│
-├─ di/
-│  ├─ types.ts
-│  └─ containers/
-│     ├─ base.container.ts
-│     ├─ client-a.container.ts
-│     └─ client-b.container.ts
-│
-└─ index.ts
+Layer 4: Features           (Complete user-facing features)
+    ↓ depends on
+Layer 3: UI Themes          (Styled component implementations)
+    ↓ depends on
+Layer 2: UI Primitives      (Headless UI hooks/logic)
+    ↓ depends on
+Layer 1: Core               (Business logic services)
 ```
 
-### Layer 2: @studio/ui-primitives (Headless UI)
+**Key Principle**: Each layer depends ONLY on interfaces from layers below, NEVER on concrete implementations.
+
+---
+
+## Layer 1: @studio/core (Business Logic Services)
+
+### Purpose
+Core business logic, data management, authentication, payments, analytics - completely framework-agnostic.
+
+### Complete File Structure
 
 ```
-@studio/ui-primitives/
-├─ contracts/
-│  ├─ IUseButton.ts
-│  ├─ IUseForm.ts
-│  └─ IUseModal.ts
+packages/core/
+├── src/
+│   ├── contracts/                          # Interface definitions
+│   │   ├── auth/
+│   │   │   ├── IAuthService.ts            # Main auth interface
+│   │   │   ├── IAuthProvider.ts           # Provider abstraction
+│   │   │   ├── types.ts                   # Auth types
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── payment/
+│   │   │   ├── IPaymentService.ts
+│   │   │   ├── IPaymentProvider.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── data/
+│   │   │   ├── IDataService.ts
+│   │   │   ├── IRepository.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── analytics/
+│   │   │   ├── IAnalyticsService.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   └── index.ts                       # Export all contracts
+│   │
+│   ├── implementations/                    # Concrete implementations
+│   │   ├── custom/                        # Self-developed services
+│   │   │   ├── auth/
+│   │   │   │   ├── CustomAuthService.ts
+│   │   │   │   ├── JWTAuthProvider.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── payment/
+│   │   │   │   ├── CustomPaymentService.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── data/
+│   │   │       ├── InMemoryRepository.ts
+│   │   │       └── index.ts
+│   │   │
+│   │   └── adapters/                      # Third-party wrappers
+│   │       ├── firebase/
+│   │       │   ├── FirebaseAuthAdapter.ts
+│   │       │   ├── FirestoreRepository.ts
+│   │       │   ├── FirebaseAnalyticsAdapter.ts
+│   │       │   └── index.ts
+│   │       │
+│   │       ├── supabase/
+│   │       │   ├── SupabaseAuthAdapter.ts
+│   │       │   ├── SupabaseRepository.ts
+│   │       │   └── index.ts
+│   │       │
+│   │       ├── stripe/
+│   │       │   ├── StripePaymentAdapter.ts
+│   │       │   └── index.ts
+│   │       │
+│   │       ├── auth0/
+│   │       │   ├── Auth0Adapter.ts
+│   │       │   └── index.ts
+│   │       │
+│   │       └── mixpanel/
+│   │           ├── MixpanelAnalyticsAdapter.ts
+│   │           └── index.ts
+│   │
+│   ├── di/                                # Dependency Injection
+│   │   ├── types/
+│   │   │   ├── tokens.ts                 # Symbol tokens for all services
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── containers/
+│   │   │   ├── baseContainer.ts          # Shared configuration
+│   │   │   ├── clientAContainer.ts       # Client A: Firebase + Stripe
+│   │   │   ├── clientBContainer.ts       # Client B: Supabase + Custom
+│   │   │   ├── clientCContainer.ts       # Client C: Auth0 + Stripe
+│   │   │   └── index.ts
+│   │   │
+│   │   └── index.ts
+│   │
+│   ├── react/                             # React-specific integration
+│   │   ├── DIContext.tsx
+│   │   ├── DIProvider.tsx
+│   │   ├── useDIContainer.ts
+│   │   ├── useService.ts
+│   │   └── index.ts
+│   │
+│   ├── utils/
+│   │   ├── logger.ts
+│   │   ├── validation.ts
+│   │   ├── errors.ts
+│   │   └── index.ts
+│   │
+│   ├── types/
+│   │   ├── common.ts
+│   │   └── index.ts
+│   │
+│   └── index.ts                           # Public API
 │
-├─ implementations/
-│  ├─ custom/
-│  └─ adapters/
-│     ├─ radix/
-│     ├─ headlessui/
-│     └─ gluestack/
-│
-└─ di/
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
-### Layer 3: @studio/ui-themes (Themed Components)
+### Detailed Code Examples
+
+#### 1. Contract Definition
+
+```typescript
+// packages/core/src/contracts/auth/IAuthService.ts
+
+export interface User {
+  id: string;
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface SignupData extends LoginCredentials {
+  displayName: string;
+}
+
+/**
+ * Authentication service interface
+ *
+ * @contract All implementations MUST:
+ * - Return User object with id and email on successful auth
+ * - Throw AuthError with specific error codes
+ * - Be idempotent for logout()
+ */
+export interface IAuthService {
+  /**
+   * Authenticate user with email/password
+   * @throws {AuthError} code: 'invalid-credentials' | 'network-error' | 'user-disabled'
+   */
+  login(credentials: LoginCredentials): Promise<User>;
+
+  /**
+   * Create new user account
+   * @throws {AuthError} code: 'email-exists' | 'weak-password' | 'network-error'
+   */
+  signup(data: SignupData): Promise<User>;
+
+  /**
+   * Sign out current user
+   * @contract Must be idempotent (safe to call multiple times)
+   */
+  logout(): Promise<void>;
+
+  /**
+   * Get currently authenticated user
+   * @returns User object or null if not authenticated
+   * @contract MUST NOT throw when user not authenticated
+   */
+  getCurrentUser(): Promise<User | null>;
+
+  /**
+   * Send password reset email
+   */
+  resetPassword(email: string): Promise<void>;
+}
+
+export class AuthError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public originalError?: unknown
+  ) {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
+```
+
+#### 2. Custom Implementation
+
+```typescript
+// packages/core/src/implementations/custom/auth/CustomAuthService.ts
+
+import { injectable } from 'tsyringe';
+import { IAuthService, User, LoginCredentials, SignupData, AuthError } from '../../../contracts/auth';
+
+@injectable()
+export class CustomAuthService implements IAuthService {
+  private currentUser: User | null = null;
+  private users: Map<string, { password: string; user: User }> = new Map();
+
+  async login(credentials: LoginCredentials): Promise<User> {
+    const userRecord = this.users.get(credentials.email);
+
+    if (!userRecord || userRecord.password !== credentials.password) {
+      throw new AuthError(
+        'Invalid email or password',
+        'invalid-credentials'
+      );
+    }
+
+    this.currentUser = userRecord.user;
+    return this.currentUser;
+  }
+
+  async signup(data: SignupData): Promise<User> {
+    if (this.users.has(data.email)) {
+      throw new AuthError(
+        'Email already in use',
+        'email-exists'
+      );
+    }
+
+    if (data.password.length < 6) {
+      throw new AuthError(
+        'Password must be at least 6 characters',
+        'weak-password'
+      );
+    }
+
+    const user: User = {
+      id: `user_${Date.now()}`,
+      email: data.email,
+      displayName: data.displayName,
+    };
+
+    this.users.set(data.email, { password: data.password, user });
+    this.currentUser = user;
+
+    return user;
+  }
+
+  async logout(): Promise<void> {
+    this.currentUser = null;
+    // Idempotent: calling multiple times is safe
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    return this.currentUser;
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    if (!this.users.has(email)) {
+      throw new AuthError(
+        'No user found with this email',
+        'user-not-found'
+      );
+    }
+
+    // In real implementation: send email
+    console.log(`Password reset email sent to ${email}`);
+  }
+}
+```
+
+#### 3. Firebase Adapter
+
+```typescript
+// packages/core/src/implementations/adapters/firebase/FirebaseAuthAdapter.ts
+
+import { injectable } from 'tsyringe';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  updateProfile
+} from 'firebase/auth';
+import { IAuthService, User, LoginCredentials, SignupData, AuthError } from '../../../contracts/auth';
+
+@injectable()
+export class FirebaseAuthAdapter implements IAuthService {
+  private auth = getAuth();
+
+  async login(credentials: LoginCredentials): Promise<User> {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        this.auth,
+        credentials.email,
+        credentials.password
+      );
+
+      return this.mapFirebaseUser(userCredential.user);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  async signup(data: SignupData): Promise<User> {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        this.auth,
+        data.email,
+        data.password
+      );
+
+      // Update display name
+      await updateProfile(userCredential.user, {
+        displayName: data.displayName,
+      });
+
+      return this.mapFirebaseUser(userCredential.user);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.auth);
+    } catch (error) {
+      // Logout failures are rare, but log them
+      console.error('Logout error:', error);
+    }
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    const firebaseUser = this.auth.currentUser;
+    return firebaseUser ? this.mapFirebaseUser(firebaseUser) : null;
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(this.auth, email);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  /**
+   * Map Firebase user to our User interface
+   */
+  private mapFirebaseUser(firebaseUser: any): User {
+    return {
+      id: firebaseUser.uid,
+      email: firebaseUser.email!,
+      displayName: firebaseUser.displayName ?? undefined,
+      photoURL: firebaseUser.photoURL ?? undefined,
+    };
+  }
+
+  /**
+   * Map Firebase errors to our AuthError with consistent codes
+   */
+  private mapFirebaseError(error: any): AuthError {
+    const errorMap: Record<string, string> = {
+      'auth/invalid-email': 'invalid-credentials',
+      'auth/user-disabled': 'user-disabled',
+      'auth/user-not-found': 'invalid-credentials',
+      'auth/wrong-password': 'invalid-credentials',
+      'auth/email-already-in-use': 'email-exists',
+      'auth/weak-password': 'weak-password',
+      'auth/network-request-failed': 'network-error',
+    };
+
+    const code = errorMap[error.code] || 'unknown-error';
+    return new AuthError(error.message, code, error);
+  }
+}
+```
+
+#### 4. DI Tokens
+
+```typescript
+// packages/core/src/di/types/tokens.ts
+
+/**
+ * Dependency Injection tokens
+ * Use Symbol.for() to ensure uniqueness across modules
+ */
+export const TYPES = {
+  // Auth Services
+  IAuthService: Symbol.for('IAuthService'),
+
+  // Payment Services
+  IPaymentService: Symbol.for('IPaymentService'),
+
+  // Data Services
+  IDataService: Symbol.for('IDataService'),
+  IUserRepository: Symbol.for('IUserRepository'),
+  IProductRepository: Symbol.for('IProductRepository'),
+
+  // Analytics
+  IAnalyticsService: Symbol.for('IAnalyticsService'),
+
+  // Utilities
+  ILogger: Symbol.for('ILogger'),
+  IValidator: Symbol.for('IValidator'),
+};
+```
+
+#### 5. Container Configuration
+
+```typescript
+// packages/core/src/di/containers/clientAContainer.ts
+
+import { container, DependencyContainer } from 'tsyringe';
+import { TYPES } from '../types/tokens';
+
+// Contracts
+import { IAuthService } from '../../contracts/auth';
+import { IPaymentService } from '../../contracts/payment';
+import { IAnalyticsService } from '../../contracts/analytics';
+
+// Implementations - Client A uses Firebase + Stripe + Mixpanel
+import { FirebaseAuthAdapter } from '../../implementations/adapters/firebase/FirebaseAuthAdapter';
+import { StripePaymentAdapter } from '../../implementations/adapters/stripe/StripePaymentAdapter';
+import { MixpanelAnalyticsAdapter } from '../../implementations/adapters/mixpanel/MixpanelAnalyticsAdapter';
+
+/**
+ * DI Container for Client A
+ *
+ * Configuration:
+ * - Auth: Firebase
+ * - Payment: Stripe
+ * - Analytics: Mixpanel
+ */
+export const createClientAContainer = (): DependencyContainer => {
+  const clientAContainer = container.createChildContainer();
+
+  // Register Auth Service
+  clientAContainer.register<IAuthService>(TYPES.IAuthService, {
+    useClass: FirebaseAuthAdapter,
+  });
+
+  // Register Payment Service
+  clientAContainer.register<IPaymentService>(TYPES.IPaymentService, {
+    useClass: StripePaymentAdapter,
+  });
+
+  // Register Analytics Service
+  clientAContainer.register<IAnalyticsService>(TYPES.IAnalyticsService, {
+    useClass: MixpanelAnalyticsAdapter,
+  });
+
+  return clientAContainer;
+};
+```
+
+```typescript
+// packages/core/src/di/containers/clientBContainer.ts
+
+import { container, DependencyContainer } from 'tsyringe';
+import { TYPES } from '../types/tokens';
+
+// Same contracts
+import { IAuthService } from '../../contracts/auth';
+import { IPaymentService } from '../../contracts/payment';
+import { IAnalyticsService } from '../../contracts/analytics';
+
+// Different implementations - Client B uses Supabase + Custom + Custom
+import { SupabaseAuthAdapter } from '../../implementations/adapters/supabase/SupabaseAuthAdapter';
+import { CustomPaymentService } from '../../implementations/custom/payment/CustomPaymentService';
+import { CustomAnalyticsService } from '../../implementations/custom/analytics/CustomAnalyticsService';
+
+/**
+ * DI Container for Client B
+ *
+ * Configuration:
+ * - Auth: Supabase
+ * - Payment: Custom (self-developed)
+ * - Analytics: Custom (self-developed)
+ */
+export const createClientBContainer = (): DependencyContainer => {
+  const clientBContainer = container.createChildContainer();
+
+  // Register Auth Service - Different implementation!
+  clientBContainer.register<IAuthService>(TYPES.IAuthService, {
+    useClass: SupabaseAuthAdapter, // ✅ Same interface, different provider
+  });
+
+  // Register Payment Service - Custom implementation!
+  clientBContainer.register<IPaymentService>(TYPES.IPaymentService, {
+    useClass: CustomPaymentService, // ✅ Self-developed
+  });
+
+  // Register Analytics Service - Custom implementation!
+  clientBContainer.register<IAnalyticsService>(TYPES.IAnalyticsService, {
+    useClass: CustomAnalyticsService, // ✅ Self-developed
+  });
+
+  return clientBContainer;
+};
+```
+
+### Layer 1 Summary
+
+**What it provides:**
+- ✅ Pure business logic interfaces (contracts)
+- ✅ Multiple implementations (custom + adapters)
+- ✅ DI configuration per client
+- ✅ React integration hooks
+
+**Key benefit:**
+Apps using this layer can switch between Firebase, Supabase, Auth0, etc. **without changing a single line of application code**.
+
+---
+
+## Layer 2: @studio/ui-primitives (Headless UI Hooks)
+
+### Purpose
+Headless UI logic - hooks providing behavior without styling. Completely UI-framework agnostic.
+
+### Complete File Structure
 
 ```
-@studio/ui-themes/
-├─ contracts/
-│  ├─ IButton.ts
-│  └─ IThemeProvider.ts
+packages/ui-primitives/
+├── src/
+│   ├── contracts/                          # Hook interfaces
+│   │   ├── button/
+│   │   │   ├── IUseButton.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── input/
+│   │   │   ├── IUseInput.ts
+│   │   │   ├── IUseForm.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── modal/
+│   │   │   ├── IUseModal.ts
+│   │   │   ├── IUseDialog.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── dropdown/
+│   │   │   ├── IUseDropdown.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   └── index.ts
+│   │
+│   ├── implementations/
+│   │   ├── custom/                        # Self-developed hooks
+│   │   │   ├── button/
+│   │   │   │   ├── useCustomButton.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── input/
+│   │   │   │   ├── useCustomInput.ts
+│   │   │   │   ├── useCustomForm.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── modal/
+│   │   │       ├── useCustomModal.ts
+│   │   │       └── index.ts
+│   │   │
+│   │   └── adapters/                      # Wrappers for third-party
+│   │       ├── radix/
+│   │       │   ├── useRadixButton.ts
+│   │       │   ├── useRadixModal.ts
+│   │       │   └── index.ts
+│   │       │
+│   │       ├── headlessui/
+│   │       │   ├── useHeadlessUIDropdown.ts
+│   │       │   └── index.ts
+│   │       │
+│   │       └── react-aria/
+│   │           ├── useAriaButton.ts
+│   │           └── index.ts
+│   │
+│   ├── di/
+│   │   ├── tokens.ts
+│   │   ├── containers/
+│   │   │   ├── baseContainer.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
+│   │
+│   ├── utils/
+│   │   ├── accessibility.ts
+│   │   ├── keyboard.ts
+│   │   └── index.ts
+│   │
+│   └── index.ts
 │
-├─ implementations/
-│  ├─ minimal/        # Custom
-│  ├─ corporate/      # Tamagui wrapper
-│  ├─ modern/         # Hybrid
-│  └─ playful/        # Custom
-│
-└─ di/
+├── package.json
+└── tsconfig.json
 ```
 
-### Layer 4: @studio/features (Feature Modules)
+### Detailed Code Examples
+
+#### 1. Hook Contract
+
+```typescript
+// packages/ui-primitives/src/contracts/button/IUseButton.ts
+
+export interface ButtonProps {
+  disabled?: boolean;
+  loading?: boolean;
+  onPress?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+}
+
+export interface ButtonState {
+  isPressed: boolean;
+  isHovered: boolean;
+  isFocused: boolean;
+  isDisabled: boolean;
+}
+
+export interface ButtonHandlers {
+  onPress: () => void;
+  onPressIn: () => void;
+  onPressOut: () => void;
+  onHoverIn: () => void;
+  onHoverOut: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+}
+
+/**
+ * Headless button hook interface
+ * Provides all button behavior without styling
+ */
+export interface IUseButton {
+  (props: ButtonProps): {
+    state: ButtonState;
+    handlers: ButtonHandlers;
+    ariaProps: {
+      role: string;
+      'aria-disabled'?: boolean;
+      'aria-pressed'?: boolean;
+      tabIndex: number;
+    };
+  };
+}
+```
+
+#### 2. Custom Implementation
+
+```typescript
+// packages/ui-primitives/src/implementations/custom/button/useCustomButton.ts
+
+import { useState, useCallback } from 'react';
+import { ButtonProps, ButtonState, ButtonHandlers, IUseButton } from '../../../contracts/button';
+
+export const useCustomButton: IUseButton = (props) => {
+  const { disabled = false, loading = false, onPress, type = 'button' } = props;
+
+  // State
+  const [isPressed, setIsPressed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const isDisabled = disabled || loading;
+
+  // Handlers
+  const handlePress = useCallback(() => {
+    if (isDisabled) return;
+    onPress?.();
+  }, [isDisabled, onPress]);
+
+  const handlePressIn = useCallback(() => {
+    if (isDisabled) return;
+    setIsPressed(true);
+  }, [isDisabled]);
+
+  const handlePressOut = useCallback(() => {
+    setIsPressed(false);
+  }, []);
+
+  const handleHoverIn = useCallback(() => {
+    if (isDisabled) return;
+    setIsHovered(true);
+  }, [isDisabled]);
+
+  const handleHoverOut = useCallback(() => {
+    setIsHovered(false);
+  }, []);
+
+  const handleFocus = useCallback(() => {
+    if (isDisabled) return;
+    setIsFocused(true);
+  }, [isDisabled]);
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+  }, []);
+
+  const state: ButtonState = {
+    isPressed,
+    isHovered,
+    isFocused,
+    isDisabled,
+  };
+
+  const handlers: ButtonHandlers = {
+    onPress: handlePress,
+    onPressIn: handlePressIn,
+    onPressOut: handlePressOut,
+    onHoverIn: handleHoverIn,
+    onHoverOut: handleHoverOut,
+    onFocus: handleFocus,
+    onBlur: handleBlur,
+  };
+
+  const ariaProps = {
+    role: 'button',
+    'aria-disabled': isDisabled || undefined,
+    'aria-pressed': type === 'button' ? isPressed || undefined : undefined,
+    tabIndex: isDisabled ? -1 : 0,
+  };
+
+  return { state, handlers, ariaProps };
+};
+```
+
+#### 3. Third-Party Adapter (Radix)
+
+```typescript
+// packages/ui-primitives/src/implementations/adapters/radix/useRadixButton.ts
+
+import { useButton as useRadixButtonPrimitive } from '@radix-ui/react-button';
+import { ButtonProps, IUseButton } from '../../../contracts/button';
+
+/**
+ * Adapter for Radix UI button
+ * Wraps Radix's useButton to match our IUseButton interface
+ */
+export const useRadixButton: IUseButton = (props) => {
+  const { disabled = false, loading = false, onPress, type = 'button' } = props;
+
+  // Use Radix's hook
+  const radixResult = useRadixButtonPrimitive({
+    disabled: disabled || loading,
+    onClick: onPress,
+    type,
+  });
+
+  // Map Radix's output to our interface
+  return {
+    state: {
+      isPressed: radixResult.isPressed,
+      isHovered: radixResult.isHovered,
+      isFocused: radixResult.isFocused,
+      isDisabled: disabled || loading,
+    },
+    handlers: {
+      onPress: radixResult.onClick,
+      onPressIn: radixResult.onMouseDown,
+      onPressOut: radixResult.onMouseUp,
+      onHoverIn: radixResult.onMouseEnter,
+      onHoverOut: radixResult.onMouseLeave,
+      onFocus: radixResult.onFocus,
+      onBlur: radixResult.onBlur,
+    },
+    ariaProps: radixResult.ariaProps,
+  };
+};
+```
+
+### Layer 2 Summary
+
+**What it provides:**
+- ✅ Headless UI hooks (behavior only, no styling)
+- ✅ Accessibility built-in (ARIA, keyboard navigation)
+- ✅ Can use custom or third-party (Radix, React Aria, Headless UI)
+
+**Key benefit:**
+Change from custom hooks to Radix UI **without changing theme components** (Layer 3).
+
+---
+
+## Layer 3: @studio/ui-themes (Themed Components)
+
+### Purpose
+Styled UI components that use Layer 2 hooks for behavior. Each theme is a complete design system.
+
+### Complete File Structure
 
 ```
-@studio/features/
-├─ auth-flow/
-│  ├─ contracts/
-│  ├─ implementations/
-│  │  ├─ custom/
-│  │  └─ adapters/
-│  └─ di/
+packages/ui-theme-material/              # Material Design theme
+├── src/
+│   ├── components/
+│   │   ├── Button/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Button.styles.ts
+│   │   │   ├── Button.test.tsx
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── Input/
+│   │   │   ├── Input.tsx
+│   │   │   ├── Input.styles.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── Modal/
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Modal.styles.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   └── index.ts
+│   │
+│   ├── theme/
+│   │   ├── colors.ts
+│   │   ├── typography.ts
+│   │   ├── spacing.ts
+│   │   ├── shadows.ts
+│   │   ├── index.ts
+│   │   └── ThemeProvider.tsx
+│   │
+│   └── index.ts
 │
-└─ payments/
-   └─ [same structure]
+├── package.json
+└── tsconfig.json
+
+packages/ui-theme-glassmorphism/          # Alternative theme
+├── src/
+│   ├── components/
+│   │   ├── Button/                      # Same component names!
+│   │   │   ├── Button.tsx               # Different styling
+│   │   │   ├── Button.styles.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── Input/
+│   │   └── Modal/
+│   │
+│   ├── theme/
+│   │   ├── effects.ts                   # Glass blur effects
+│   │   ├── colors.ts                    # Different colors
+│   │   └── index.ts
+│   │
+│   └── index.ts
+│
+└── package.json
+```
+
+### Detailed Code Examples
+
+#### 1. Material Design Button
+
+```typescript
+// packages/ui-theme-material/src/components/Button/Button.tsx
+
+import React from 'react';
+import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { useService } from '@studio/core/react';
+import { IUseButton, ButtonProps } from '@studio/ui-primitives/contracts/button';
+import { PRIMITIVE_TYPES } from '@studio/ui-primitives/di/tokens';
+import { styles } from './Button.styles';
+
+export interface MaterialButtonProps extends ButtonProps {
+  children: React.ReactNode;
+  variant?: 'contained' | 'outlined' | 'text';
+  color?: 'primary' | 'secondary' | 'error';
+  size?: 'small' | 'medium' | 'large';
+}
+
+/**
+ * Material Design Button Component
+ *
+ * Uses headless button hook from Layer 2 for behavior
+ * Adds Material Design styling
+ */
+export const Button: React.FC<MaterialButtonProps> = ({
+  children,
+  variant = 'contained',
+  color = 'primary',
+  size = 'medium',
+  loading,
+  ...buttonProps
+}) => {
+  // ✅ Get hook from DI (could be custom or Radix)
+  const useButtonHook = useService<IUseButton>(PRIMITIVE_TYPES.IUseButton);
+
+  // Use the hook
+  const { state, handlers, ariaProps } = useButtonHook({
+    ...buttonProps,
+    loading,
+  });
+
+  return (
+    <Pressable
+      onPress={handlers.onPress}
+      onPressIn={handlers.onPressIn}
+      onPressOut={handlers.onPressOut}
+      onHoverIn={handlers.onHoverIn}
+      onHoverOut={handlers.onHoverOut}
+      onFocus={handlers.onFocus}
+      onBlur={handlers.onBlur}
+      style={[
+        styles.base,
+        styles[variant],
+        styles[color],
+        styles[size],
+        state.isDisabled && styles.disabled,
+        state.isPressed && styles.pressed,
+        state.isHovered && styles.hovered,
+      ]}
+      accessibilityRole={ariaProps.role}
+      accessibilityState={{ disabled: state.isDisabled }}
+      accessible
+    >
+      {loading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={[styles.text, styles[`${color}Text`]]}>
+          {children}
+        </Text>
+      )}
+    </Pressable>
+  );
+};
+```
+
+```typescript
+// packages/ui-theme-material/src/components/Button/Button.styles.ts
+
+import { StyleSheet } from 'react-native';
+import { colors, spacing } from '../../theme';
+
+export const styles = StyleSheet.create({
+  base: {
+    borderRadius: 4,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2, // Material elevation
+  },
+
+  // Variants
+  contained: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  outlined: {
+    borderWidth: 1,
+    backgroundColor: 'transparent',
+  },
+  text: {
+    backgroundColor: 'transparent',
+    elevation: 0,
+  },
+
+  // Colors
+  primary: {
+    backgroundColor: colors.primary,
+  },
+  secondary: {
+    backgroundColor: colors.secondary,
+  },
+  error: {
+    backgroundColor: colors.error,
+  },
+
+  // Sizes
+  small: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  medium: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  large: {
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+  },
+
+  // States
+  disabled: {
+    opacity: 0.38,
+  },
+  pressed: {
+    opacity: 0.87,
+  },
+  hovered: {
+    elevation: 4,
+  },
+
+  // Text
+  text: {
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.75,
+  },
+  primaryText: {
+    color: 'white',
+  },
+  secondaryText: {
+    color: 'white',
+  },
+  errorText: {
+    color: 'white',
+  },
+});
+```
+
+#### 2. Glassmorphism Button (Alternative Theme)
+
+```typescript
+// packages/ui-theme-glassmorphism/src/components/Button/Button.tsx
+
+import React from 'react';
+import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useService } from '@studio/core/react';
+import { IUseButton, ButtonProps } from '@studio/ui-primitives/contracts/button';
+import { PRIMITIVE_TYPES } from '@studio/ui-primitives/di/tokens';
+import { styles } from './Button.styles';
+
+export interface GlassButtonProps extends ButtonProps {
+  children: React.ReactNode;
+  variant?: 'glass' | 'solid';
+  intensity?: 'light' | 'medium' | 'strong';
+}
+
+/**
+ * Glassmorphism Button Component
+ *
+ * Uses SAME headless hook as Material button
+ * Different styling (frosted glass effect)
+ */
+export const Button: React.FC<GlassButtonProps> = ({
+  children,
+  variant = 'glass',
+  intensity = 'medium',
+  loading,
+  ...buttonProps
+}) => {
+  // ✅ Same hook resolution as Material button!
+  const useButtonHook = useService<IUseButton>(PRIMITIVE_TYPES.IUseButton);
+  const { state, handlers, ariaProps } = useButtonHook({
+    ...buttonProps,
+    loading,
+  });
+
+  const blurIntensity = {
+    light: 20,
+    medium: 50,
+    strong: 80,
+  }[intensity];
+
+  if (variant === 'glass') {
+    return (
+      <Pressable
+        onPress={handlers.onPress}
+        style={[
+          styles.base,
+          state.isDisabled && styles.disabled,
+        ]}
+      >
+        <BlurView
+          intensity={blurIntensity}
+          tint="light"
+          style={styles.blur}
+        >
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.text}>{children}</Text>
+          )}
+        </BlurView>
+      </Pressable>
+    );
+  }
+
+  // Solid variant (fallback)
+  return (
+    <Pressable
+      onPress={handlers.onPress}
+      style={[styles.base, styles.solid]}
+    >
+      <Text style={styles.text}>{children}</Text>
+    </Pressable>
+  );
+};
+```
+
+### Layer 3 Summary
+
+**What it provides:**
+- ✅ Fully styled UI components
+- ✅ Multiple theme packages (Material, Glassmorphism, Corporate, etc.)
+- ✅ Same component names across themes
+
+**Key benefit:**
+Switch entire design system by changing import:
+```typescript
+// Client A
+import { Button } from '@studio/ui-theme-material';
+
+// Client B
+import { Button } from '@studio/ui-theme-glassmorphism';
+
+// ✅ App code unchanged!
+```
+
+---
+
+## Layer 4: @studio/features (Feature Modules)
+
+### Purpose
+Complete user-facing features combining Layer 1-3. Self-contained modules with screens, logic, and UI.
+
+### Complete File Structure
+
+```
+packages/features-auth-flow/
+├── src/
+│   ├── contracts/
+│   │   ├── IAuthFlow.ts                 # Feature-level contract
+│   │   ├── types.ts
+│   │   └── index.ts
+│   │
+│   ├── implementations/
+│   │   ├── custom/
+│   │   │   ├── EmailPasswordAuthFlow.ts
+│   │   │   ├── SocialAuthFlow.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   └── adapters/
+│   │       ├── firebase/
+│   │       │   └── FirebaseAuthFlowAdapter.ts
+│   │       │
+│   │       └── auth0/
+│   │           └── Auth0FlowAdapter.ts
+│   │
+│   ├── screens/                         # Feature screens
+│   │   ├── LoginScreen.tsx
+│   │   ├── SignupScreen.tsx
+│   │   ├── ForgotPasswordScreen.tsx
+│   │   ├── ResetPasswordScreen.tsx
+│   │   └── index.ts
+│   │
+│   ├── components/                      # Feature-specific components
+│   │   ├── SocialLoginButtons.tsx
+│   │   ├── PasswordStrengthIndicator.tsx
+│   │   └── index.ts
+│   │
+│   ├── hooks/
+│   │   ├── useAuthFlow.ts
+│   │   └── index.ts
+│   │
+│   ├── di/
+│   │   ├── tokens.ts
+│   │   ├── container.ts
+│   │   └── index.ts
+│   │
+│   └── index.ts
+│
+├── package.json
+└── tsconfig.json
+```
+
+### Detailed Code Examples
+
+#### 1. Feature Contract
+
+```typescript
+// packages/features-auth-flow/src/contracts/IAuthFlow.ts
+
+export interface AuthFlowResult {
+  success: boolean;
+  user?: User;
+  error?: string;
+}
+
+export interface AuthFlowConfig {
+  enableSocialLogin?: boolean;
+  providers?: ('google' | 'apple' | 'facebook')[];
+  requireEmailVerification?: boolean;
+}
+
+/**
+ * Authentication flow interface
+ * Orchestrates complete login/signup experience
+ */
+export interface IAuthFlow {
+  /**
+   * Initialize auth flow with configuration
+   */
+  initialize(config: AuthFlowConfig): Promise<void>;
+
+  /**
+   * Perform login flow
+   */
+  loginWithEmail(email: string, password: string): Promise<AuthFlowResult>;
+
+  /**
+   * Perform signup flow
+   */
+  signupWithEmail(
+    email: string,
+    password: string,
+    displayName: string
+  ): Promise<AuthFlowResult>;
+
+  /**
+   * Social login (if enabled)
+   */
+  loginWithProvider(provider: string): Promise<AuthFlowResult>;
+
+  /**
+   * Password reset flow
+   */
+  initiatePasswordReset(email: string): Promise<void>;
+}
+```
+
+#### 2. Login Screen (Using All 3 Lower Layers)
+
+```typescript
+// packages/features-auth-flow/src/screens/LoginScreen.tsx
+
+import React, { useState } from 'react';
+import { View, Text, Alert } from 'react-native';
+import { useService } from '@studio/core/react';
+import { IAuthService } from '@studio/core/contracts/auth';
+import { TYPES } from '@studio/core/di/types/tokens';
+
+// ✅ Layer 3: Themed components (Material or Glassmorphism)
+import { Button, Input } from '@studio/ui-theme'; // Resolved at build time!
+
+export const LoginScreen: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Layer 1: Business logic service (Firebase, Supabase, or Auth0)
+  const authService = useService<IAuthService>(TYPES.IAuthService);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const user = await authService.login({ email, password });
+      Alert.alert('Success', `Welcome ${user.displayName}!`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, marginBottom: 20 }}>Login</Text>
+
+      {/* ✅ Layer 3: Input component (uses Layer 2 hook internally) */}
+      <Input
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+
+      <Input
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={{ marginTop: 16 }}
+      />
+
+      {/* ✅ Layer 3: Button component (uses Layer 2 hook internally) */}
+      <Button
+        onPress={handleLogin}
+        loading={loading}
+        disabled={!email || !password}
+        style={{ marginTop: 24 }}
+      >
+        Login
+      </Button>
+    </View>
+  );
+};
+```
+
+### Layer 4 Summary
+
+**What it provides:**
+- ✅ Complete features with screens
+- ✅ Uses all 3 lower layers
+- ✅ Feature-level contracts for flexibility
+
+**Key benefit:**
+Swap entire auth flow (Firebase Auth UI vs Auth0 Lock vs Custom) **without changing screens**.
+
+---
+
+## Layer Interaction Example
+
+```typescript
+/**
+ * Complete flow when user clicks "Login" button:
+ *
+ * 1. User presses Button in LoginScreen (Layer 4)
+ *    ↓
+ * 2. Button component from Layer 3 uses useButton hook from Layer 2
+ *    ↓
+ * 3. useButton hook (could be custom or Radix) provides press behavior
+ *    ↓
+ * 4. Button calls handleLogin() which uses IAuthService from Layer 1
+ *    ↓
+ * 5. IAuthService resolves to Firebase/Supabase/Auth0 adapter
+ *    ↓
+ * 6. Adapter calls third-party SDK
+ *    ↓
+ * 7. Result flows back up through layers
+ *
+ * ✅ At NO point does any layer know about concrete implementations!
+ */
 ```
 
 ---
